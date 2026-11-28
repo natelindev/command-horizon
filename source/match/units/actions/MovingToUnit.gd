@@ -2,6 +2,7 @@
 extends "res://source/match/units/actions/Moving.gd"
 
 const PathQuery = preload("res://source/match/orders/PathQuery.gd")
+const Footprint = preload("res://source/match/utils/Footprint.gd")
 
 const SEARCH_USEC_PER_FRAME = 2000
 const SEARCH_QUERIES_PER_FRAME = 24
@@ -51,13 +52,12 @@ func _process(delta):
 	):
 		return
 	if _contact_progress == null:
-		_contact_progress = _unit.global_position
+		_contact_progress = _unit.global_position_yless
 	_contact_elapsed += delta
 	if _contact_elapsed < 2.0:
 		return
 	_contact_elapsed = 0.0
-	var center = _target_unit.global_position_yless
-	var distance = _unit.global_position_yless.distance_to(center)
+	var distance = Footprint.reach_distance(_target_unit, _unit.global_position)
 	var contact = (
 		_unit.radius
 		+ _target_unit.radius
@@ -80,7 +80,7 @@ func _process(delta):
 	_orbit_windows = _orbit_windows + 1 if near_contact else 0
 	# Give an honest outside detour time to clear the footprint. Long routes
 	# only retry when stationary; near-contact loops retain a progress high-water.
-	if _unit.global_position.distance_to(_contact_progress) < .2 or _orbit_windows >= 2:
+	if _unit.global_position_yless.distance_to(_contact_progress) < .2 or _orbit_windows >= 2:
 		_try_open_approach()
 		_orbit_windows = 0
 		_contact_progress = _unit.global_position_yless
@@ -195,6 +195,19 @@ func _geometry(blockers):
 	return _blocker_geometry
 
 
+func _nav_point(point: Vector3) -> Vector3:
+	if _movement_trait._elevated:
+		return Vector3(
+			point.x,
+			(
+				_movement_trait._map.height_at(Vector2(point.x, point.z))
+				+ _movement_trait.path_height_offset
+			),
+			point.z
+		)
+	return point * Vector3(1, 0, 1)
+
+
 func _search_approach(preserve_clear_route):
 	if not await _search_budget():
 		return false
@@ -202,6 +215,7 @@ func _search_approach(preserve_clear_route):
 		return false
 	var center = _target_unit.global_position_yless
 	var origin = _unit.global_position_yless
+	var nav_origin = _nav_point(origin)
 	var contact = (
 		_unit.radius
 		+ _target_unit.radius
@@ -227,7 +241,7 @@ func _search_approach(preserve_clear_route):
 	)
 	var navmap = _movement_trait.get_navigation_map()
 	if preserve_clear_route:
-		var ordinary_path = _path_query.path(navmap, origin, _target_position)
+		var ordinary_path = _path_query.path(navmap, nav_origin, _nav_point(_target_position))
 		var settled = blockers.filter(
 			func(other):
 				var movement = other.get_node_or_null("Movement")
@@ -242,6 +256,8 @@ func _search_approach(preserve_clear_route):
 			return false
 	var best = Vector3.INF
 	var best_length = INF
+	var fallback_face = Vector3.INF
+	var fallback_length = INF
 	var faces = []
 	# Choose another reachable work face without widening contact range or
 	# ignoring the agents occupying the original approach. Ordinary RVO stays on.
@@ -249,9 +265,10 @@ func _search_approach(preserve_clear_route):
 		if not await _search_budget():
 			return false
 		var radial = Vector3(cos(index * TAU / 32), 0, sin(index * TAU / 32))
-		var point = NavigationServer3D.map_get_closest_point(navmap, center + radial * radius)
-		point *= Vector3(1, 0, 1)
-		if point.distance_to(center) > contact or point.distance_to(_target_position) < 0.5:
+		var sample_world = center + radial * radius
+		var projected = NavigationServer3D.map_get_closest_point(navmap, _nav_point(sample_world))
+		var point = projected * Vector3(1, 0, 1)
+		if Footprint.reach_distance(_target_unit, point) > contact:
 			continue
 		var occupied = false
 		for body in _geometry(blockers):
@@ -260,13 +277,18 @@ func _search_approach(preserve_clear_route):
 				break
 		if occupied:
 			continue
-		var path = _path_query.path(navmap, origin, point)
+		var path = _path_query.path(navmap, nav_origin, projected)
 		if path.size() < 2 or (path[-1] * Vector3(1, 0, 1)).distance_to(point) > 0.1:
+			continue
+		var length = _path_length(path)
+		if point.distance_to(_target_position) < 0.5:
+			if _path_clear_of_bodies(path, blockers) and length < fallback_length:
+				fallback_face = point
+				fallback_length = length
 			continue
 		faces.append(point)
 		if not _path_clear_of_bodies(path, blockers):
 			continue
-		var length = _path_length(path)
 		if length < best_length:
 			best = point
 			best_length = length
@@ -287,11 +309,13 @@ func _search_approach(preserve_clear_route):
 					return false
 				var offset = Vector3(cos(index * TAU / 64), 0, sin(index * TAU / 64))
 				var waypoint = ring[0] + offset * ring[1]
-				var projected = NavigationServer3D.map_get_closest_point(navmap, waypoint)
-				projected *= Vector3(1, 0, 1)
+				var projected_3d = NavigationServer3D.map_get_closest_point(
+					navmap, _nav_point(waypoint)
+				)
+				var projected = projected_3d * Vector3(1, 0, 1)
 				if projected.distance_to(waypoint) > .15:
 					continue
-				var first = _path_query.path(navmap, origin, projected)
+				var first = _path_query.path(navmap, nav_origin, projected_3d)
 				if (
 					first.size() < 2
 					or (first[-1] * Vector3(1, 0, 1)).distance_to(projected) > .1
@@ -301,7 +325,7 @@ func _search_approach(preserve_clear_route):
 				for face in faces:
 					if not await _search_budget():
 						return false
-					var second = _path_query.path(navmap, projected, face)
+					var second = _path_query.path(navmap, projected_3d, _nav_point(face))
 					if (
 						second.size() < 2
 						or (second[-1] * Vector3(1, 0, 1)).distance_to(face) > .1
@@ -314,12 +338,16 @@ func _search_approach(preserve_clear_route):
 						best_length = length
 	if not best.is_finite() and not faces.is_empty():
 		best = await _two_corner_approach(navmap, origin, center, contact, faces, blockers)
+	if not best.is_finite() and fallback_face.is_finite():
+		best = fallback_face
 	if not best.is_finite():
 		return false
 	if not await _search_budget():
 		return false
 	# The worker and nearby agents may move while the search yields.
-	var current_path = _path_query.path(navmap, _unit.global_position_yless, best)
+	var current_path = _path_query.path(
+		navmap, _nav_point(_unit.global_position_yless), _nav_point(best)
+	)
 	if (
 		current_path.size() < 2
 		or (current_path[-1] * Vector3(1, 0, 1)).distance_to(best) > .1
@@ -343,7 +371,7 @@ func _two_corner_approach(navmap, origin, center, contact, faces, blockers):
 				return Vector3.INF
 			var angle = index * TAU / 16
 			var candidate = ring[0] + Vector3(cos(angle), 0, sin(angle)) * ring[1]
-			var point = NavigationServer3D.map_get_closest_point(navmap, candidate)
+			var point = NavigationServer3D.map_get_closest_point(navmap, _nav_point(candidate))
 			point *= Vector3(1, 0, 1)
 			if point.distance_to(candidate) > .15:
 				continue
@@ -373,7 +401,7 @@ func _two_corner_approach(navmap, origin, center, contact, faces, blockers):
 func _clear_path_length(navmap, start, end, blockers):
 	if not await _search_budget():
 		return INF
-	var path = _path_query.path(navmap, start, end)
+	var path = _path_query.path(navmap, _nav_point(start), _nav_point(end))
 	if (
 		path.size() < 2
 		or (path[-1] * Vector3(1, 0, 1)).distance_to(end) > .1

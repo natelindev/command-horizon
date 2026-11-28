@@ -40,6 +40,8 @@ const LEVELS = {
 	"damage_backfire": -29.0,
 	"commander_warning": -18.0,
 	"commander_emp": -15.0,
+	"shield_break": -14.5,
+	"phase_shift": -16.5,
 	"complete_bastion": -24.0,
 	"complete_helix": -26.0,
 	"complete_frontier": -27.0,
@@ -56,6 +58,7 @@ var _game
 var _camera
 var _human
 var _impact_focus_until = 0.0
+var _speech_duck = 0.0
 var _charge_stream
 var _damage_candidates := {}
 var _damage_streams := {}
@@ -75,6 +78,10 @@ func _ready():
 	var warning = _make_warning_stream()
 	_streams["commander_warning"] = [warning, warning, warning]
 	_streams["commander_emp"] = _streams["energy_fire"]
+	var shield_break = _make_shield_break_stream()
+	_streams["shield_break"] = [shield_break, shield_break, shield_break]
+	var phase = _make_phase_shift_stream()
+	_streams["phase_shift"] = [phase, phase, phase]
 	Globals.options.changed.connect(_options_changed)
 
 
@@ -112,19 +119,39 @@ static func weapon_cue(unit, weapon = {}):
 
 
 func shot(unit, point, weapon = {}):
-	var pitch = (
-		0.76
-		if unit.type in ["Tank", "AntiGroundTurret"] and unit.player.faction == "helix"
-		else 1.0
-	)
 	var cue = weapon_cue(unit, weapon)
 	if cue.is_empty():
 		return false
+	var pitch = _weapon_pitch(unit, weapon)
 	var light = (
 		unit.type in ["Infantry", "AssaultInfantry", "MercenaryWarden"]
 		or cue in ["rifle_fire", "autocannon_fire"]
 	)
 	return _play(cue, unit, point, 1 if light else 2, pitch)
+
+
+static func _weapon_pitch(unit, weapon = {}) -> float:
+	var weapon_id: String = weapon.get("id", "")
+	match weapon_id:
+		"siege_shell":
+			return 0.78
+		"heavy_shell":
+			return 0.86
+		"shotgun":
+			return 0.84
+		"flak":
+			return 0.86
+		"jet_cannon":
+			return 1.16
+		"sniper", "thermal_beam":
+			return 1.12
+		"prism_beam":
+			return 1.10
+		"sam", "interceptor", "air_to_air":
+			return 1.08
+	if unit.type in ["Tank", "AntiGroundTurret"] and unit.player.faction == "helix":
+		return 0.78
+	return 1.0
 
 
 func update_charge(unit):
@@ -171,18 +198,26 @@ func _update_charge_voice(entry, unit, point):
 
 
 static func _make_charge_stream():
-	# A seamless 200 ms capacitor tone: all carriers and modulation complete
-	# whole cycles. Pitch follows authoritative preparation, never wall time/RNG.
-	var rate = 22050
-	var samples = rate / 5
+	# A seamless 250 ms electromagnetic capacitor hum: all harmonics complete whole
+	# cycles at 4 Hz boundaries. Pitch follows authoritative preparation.
+	var rate = 44100
+	var samples = rate / 4
 	var pcm = PackedByteArray()
 	pcm.resize(samples * 2)
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 20483
+	var lp = 0.0
 	for index in samples:
 		var time = float(index) / rate
-		var carrier = sin(TAU * 440.0 * time + 0.35 * sin(TAU * 30.0 * time))
-		var harmonics = 0.25 * sin(TAU * 880.0 * time) + 0.1 * sin(TAU * 1320.0 * time)
-		var tremolo = 0.85 + 0.15 * cos(TAU * 20.0 * time)
-		pcm.encode_s16(index * 2, roundi((carrier + harmonics) * tremolo * 15000.0))
+		var fm = 0.42 * sin(TAU * 24.0 * time)
+		var body = sin(TAU * 220.0 * time + fm) * 0.48
+		var fifth = sin(TAU * 330.0 * time + fm * 0.5) * 0.24
+		var core = sin(TAU * 440.0 * time + fm) * 0.34
+		var sheen = sin(TAU * 880.0 * time) * 0.16 + sin(TAU * 1320.0 * time) * 0.08
+		lp = lerpf(lp, rng.randf_range(-1.0, 1.0), 0.12)
+		var pulse = 0.84 + 0.16 * cos(TAU * 16.0 * time)
+		var sample = tanh((body + fifth + core + sheen + lp * 0.14) * pulse * 0.85)
+		pcm.encode_s16(index * 2, roundi(sample * 19000.0))
 	var stream = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = rate
@@ -248,20 +283,141 @@ func commander_emp(point: Vector3) -> bool:
 
 
 static func _make_warning_stream() -> AudioStreamWAV:
-	var rate = 22050
-	var pcm = PackedByteArray()
-	pcm.resize(int(rate * .6) * 2)
-	for index in int(rate * .6):
+	# Cinematic dual-stage tactical sonar/klaxon alert with warm low pressure anchor,
+	# damped brassy fifths, and spacious tail (never a shrill microwave beep).
+	var rate = 44100
+	var duration = 0.74
+	var count = int(rate * duration)
+	var dry := PackedFloat32Array()
+	dry.resize(count)
+	for index in count:
 		var t = float(index) / rate
-		var local = fmod(t, .3)
-		var envelope = sin(PI * clampf(local / .22, 0.0, 1.0))
-		var frequency = 740.0 if t < .3 else 980.0
-		pcm.encode_s16(index * 2, roundi(sin(TAU * frequency * t) * envelope * 13000))
+		var sample = 0.0
+		for pulse in [[0.0, 440.0, 659.25, 0.25], [0.27, 587.33, 880.0, 0.36]]:
+			var local = t - pulse[0]
+			if local < 0.0 or local > pulse[3]:
+				continue
+			var env = (
+				minf(local / 0.010, 1.0)
+				* exp(-local * 6.8)
+				* clampf((pulse[3] - local) / 0.035, 0.0, 1.0)
+			)
+			var f1: float = pulse[1]
+			var f2: float = pulse[2]
+			var sub = sin(TAU * (f1 * 0.25) * local) * 0.26 * exp(-local * 9.0)
+			var body = (
+				sin(TAU * f1 * local) * 0.44
+				+ sin(TAU * f2 * local + 0.4) * 0.28
+				+ sin(TAU * (f1 * 0.5) * local) * 0.24
+				+ sin(TAU * (f2 * 2.0) * local) * 0.06 * exp(-local * 18.0)
+			)
+			sample += (body + sub) * env
+		dry[index] = sample
+	var tap1 = int(rate * 0.032)
+	var tap2 = int(rate * 0.071)
+	var pcm = PackedByteArray()
+	pcm.resize(count * 2)
+	for index in count:
+		var t = float(index) / rate
+		var s = dry[index]
+		if index >= tap1:
+			s += dry[index - tap1] * 0.20
+		if index >= tap2:
+			s += dry[index - tap2] * 0.11
+		var fade_out = clampf((duration - t) / 0.04, 0.0, 1.0)
+		pcm.encode_s16(index * 2, roundi(tanh(s * 1.12) * fade_out * 20000.0))
 	var stream = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = rate
 	stream.data = pcm
 	return stream
+
+
+static func _make_shield_break_stream() -> AudioStreamWAV:
+	# Crystalline magnetic-shield collapse: glassy discharge snap + descending harmonic power-down.
+	var rate = 44100
+	var duration = 0.42
+	var count = int(rate * duration)
+	var pcm = PackedByteArray()
+	pcm.resize(count * 2)
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 8821
+	var lp1 = 0.0
+	var lp2 = 0.0
+	for index in count:
+		var t = float(index) / rate
+		var w = rng.randf_range(-1.0, 1.0)
+		lp1 = lerpf(lp1, w, 0.34)
+		lp2 = lerpf(lp2, lp1, 0.18)
+		var bp = lp1 - lp2
+		# Crisp shatter crackle
+		var shatter = bp * minf(t / 0.001, 1.0) * exp(-t * 28.0) * 0.65
+		# Descending resonant magnetic field collapse
+		var f = 780.0 * exp(-t * 7.5) + 95.0
+		var collapse = (
+			(
+				sin(TAU * f * t) * 0.45
+				+ sin(TAU * f * 1.5 * t + 0.6) * 0.25 * exp(-t * 10.0)
+				+ sin(TAU * 135.0 * exp(-t * 14.0) * t) * 0.32 * exp(-t * 16.0)
+			)
+			* minf(t / 0.002, 1.0)
+			* exp(-t * 7.5)
+		)
+		var fade_out = clampf((duration - t) / 0.03, 0.0, 1.0)
+		pcm.encode_s16(index * 2, roundi(tanh((shatter + collapse) * 1.15) * fade_out * 22000.0))
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.data = pcm
+	return stream
+
+
+static func _make_phase_shift_stream() -> AudioStreamWAV:
+	# Sleek Helix dimensional phase-shift: airy resonant whoosh + crystalline arrival bloom.
+	var rate = 44100
+	var duration = 0.36
+	var count = int(rate * duration)
+	var pcm = PackedByteArray()
+	pcm.resize(count * 2)
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 8822
+	var lp1 = 0.0
+	var lp2 = 0.0
+	for index in count:
+		var t = float(index) / rate
+		var w = rng.randf_range(-1.0, 1.0)
+		lp1 = lerpf(lp1, w, 0.24)
+		lp2 = lerpf(lp2, lp1, 0.14)
+		var bp = lp1 - lp2
+		var whoosh = bp * minf(t / 0.025, 1.0) * exp(-t * 11.0) * 0.58
+		var glide = (
+			(
+				sin(TAU * (240.0 + 520.0 * (1.0 - exp(-t * 14.0))) * t) * 0.36
+				+ sin(TAU * (360.0 + 780.0 * (1.0 - exp(-t * 14.0))) * t + 0.7) * 0.22
+			)
+			* minf(t / 0.015, 1.0)
+			* exp(-t * 10.5)
+		)
+		var sub = sin(TAU * (110.0 * exp(-t * 8.0) + 48.0) * t) * 0.28 * exp(-t * 12.0)
+		var fade_out = clampf((duration - t) / 0.03, 0.0, 1.0)
+		pcm.encode_s16(index * 2, roundi(tanh((whoosh + glide + sub) * 1.1) * fade_out * 21000.0))
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.data = pcm
+	return stream
+
+
+func shield_break(unit, point: Vector3) -> bool:
+	return _play("shield_break", unit, point, 2, 1.0)
+
+
+func phase_shift(unit, point: Vector3, owner = null) -> bool:
+	if is_instance_valid(unit):
+		return _play("phase_shift", unit, point, 1, 1.0)
+	if not point_observed(point, owner):
+		return false
+	return _play("phase_shift", _game, point, 1, 1.0, true)
 
 
 func update_damage(unit, band: int):
@@ -343,23 +499,68 @@ func _refresh_damage_loops():
 
 
 static func _make_damage_stream(faction: String) -> AudioStreamWAV:
-	var rate = 22050
-	var pcm = PackedByteArray()
-	pcm.resize(rate * 2)
+	# Organic, textured 1.0 s loopable damage beds per faction identity:
+	# Bastion: diesel sputter + hull fire crackle; Helix: unstable plasma hum + electric arc;
+	# Frontier: pressurized radiator steam hiss + loose metallic plate rattle.
+	var rate = 44100
+	var raw = PackedFloat32Array()
+	raw.resize(rate)
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 7711 if faction == "bastion" else (7712 if faction == "helix" else 7713)
+	var lp1 = 0.0
+	var lp2 = 0.0
+	var spark_env = 0.0
 	for index in rate:
 		var t = float(index) / rate
+		var white = rng.randf_range(-1.0, 1.0)
+		lp1 = lerpf(lp1, white, .12)
+		lp2 = lerpf(lp2, lp1, .18)
+		var bp = lp1 - lp2
+		if rng.randf() < (0.0009 if faction == "helix" else 0.0014):
+			spark_env = rng.randf_range(0.55, 1.0)
+		spark_env *= 0.992
 		var value = 0.0
 		match faction:
 			"helix":
-				value = sin(TAU * 180 * t + sin(TAU * 7 * t) * 1.2) * .3 + sin(TAU * 720 * t) * .08
+				var hum = (
+					sin(TAU * 120.0 * t + sin(TAU * 4.0 * t) * 0.9) * 0.24
+					+ sin(TAU * 240.0 * t + sin(TAU * 7.0 * t) * 0.5) * 0.14
+					+ sin(TAU * 480.0 * t) * 0.06
+				)
+				var arc = (white * 0.45 + bp * 0.55) * spark_env * 0.34
+				value = hum * (0.82 + 0.18 * sin(TAU * 6.0 * t)) + arc
 			"frontier":
-				value = (sin(TAU * 1673 * t) + sin(TAU * 2371 * t) + sin(TAU * 3229 * t)) * .1
-				value *= .5 + .5 * sin(TAU * 3 * t)
-				value += sin(TAU * 83 * t) * sin(TAU * 17 * t) * .12
+				var steam = (
+					(bp * 0.80 + white * 0.20) * (0.52 + 0.48 * sin(TAU * 2.0 * t) ** 2) * 0.46
+				)
+				var rattle = (
+					(
+						sin(TAU * 310.0 * t) * 0.5
+						+ sin(TAU * 785.0 * t) * 0.35
+						+ sin(TAU * 1490.0 * t) * 0.15
+					)
+					* spark_env
+					* 0.24
+				)
+				value = steam + rattle
 			_:
-				value = sin(TAU * 53 * t) * .25 + sin(TAU * 107 * t) * .15
-				value *= .7 + .3 * sin(TAU * 13 * t)
-		pcm.encode_s16(index * 2, roundi(value * 24000))
+				var chug = (
+					(sin(TAU * 48.0 * t) * 0.30 + sin(TAU * 96.0 * t) * 0.16 + lp2 * 0.65)
+					* (0.62 + 0.38 * sin(TAU * 9.0 * t) ** 2)
+				)
+				var fire_crackle = (bp * 0.5 + white * 0.5) * spark_env * 0.32
+				value = chug * 0.55 + fire_crackle
+		raw[index] = value
+	# Crossfade loop seam (last 20 ms blended into first 20 ms) for zero click.
+	var fade = int(rate * 0.02)
+	var pcm = PackedByteArray()
+	pcm.resize(rate * 2)
+	for index in rate:
+		var s = raw[index]
+		if index < fade:
+			var w = float(index) / fade
+			s = lerpf(raw[rate - fade + index], s, w)
+		pcm.encode_s16(index * 2, roundi(tanh(s * 1.15) * 23500.0))
 	var stream = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = rate
@@ -521,6 +722,7 @@ func _process(delta):
 		return
 	var elapsed = delta / maxf(Engine.time_scale, 0.001)
 	_clock += elapsed
+	_update_speech_duck(elapsed)
 	_damage_refresh -= elapsed
 	if _damage_refresh <= 0.0:
 		_damage_refresh = .25
@@ -573,6 +775,25 @@ func _process(delta):
 		_position(entry)
 
 
+func _speech_active() -> bool:
+	if not is_instance_valid(_human):
+		_human = _game._get_human_player()
+	var speech = _human.get_node_or_null("BattleVoice") if is_instance_valid(_human) else null
+	return (
+		speech != null
+		and speech._audio.playing
+		and not speech._audio.stream_paused
+		and Globals.options.voice_volume > 0
+	)
+
+
+func _update_speech_duck(delta: float):
+	# Smooth speech ducking avoids jarring 6 dB frame-step pumping when radio lines begin/end.
+	var target = -6.0 if _speech_active() else 0.0
+	var rate = 48.0 if target < _speech_duck else 12.0
+	_speech_duck = move_toward(_speech_duck, target, delta * rate)
+
+
 func _position(entry):
 	var viewport = get_viewport().get_visible_rect()
 	entry.node.position = _camera.unproject_position(entry.point)
@@ -582,14 +803,7 @@ func _position(entry):
 			+ Vector2(clampf(entry.node.position.x - viewport.get_center().x, -160, 160), 0)
 		)
 	entry.node.max_distance = viewport.size.length() * 0.9
-	if not is_instance_valid(_human):
-		_human = _game._get_human_player()
-	var speech = _human.get_node_or_null("BattleVoice") if is_instance_valid(_human) else null
-	var duck = (
-		-6.0
-		if speech != null and speech._audio.playing and Globals.options.voice_volume > 0
-		else 0.0
-	)
+	var duck = _speech_duck if Globals.options.voice_volume > 0 else 0.0
 	# Briefly make room for a major loss without interrupting weapons or speech.
 	var impact_duck = -3.5 if _clock < _impact_focus_until and entry.priority < 3 else 0.0
 	var charge_gain = 0.0

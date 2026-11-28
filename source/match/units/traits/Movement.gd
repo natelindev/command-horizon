@@ -745,11 +745,10 @@ func set_ghosted(value):
 		if value
 		else Constants.Match.Navigation.AVOIDANCE_UNITS
 	)
-	avoidance_mask = (
-		Constants.Match.Navigation.AVOIDANCE_STATIC
-		if value
-		else Constants.Match.Navigation.AVOIDANCE_UNITS
-	)
+	# Ghosted harvesters stay strictly inside the baked navmesh via
+	# _navigation_position, so they do not need RVO static-obstacle repulsion
+	# pushing them away from the very drop-off or deposit they are contacting.
+	avoidance_mask = 0 if value else Constants.Match.Navigation.AVOIDANCE_UNITS
 	_native_refresh_facts()
 
 

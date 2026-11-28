@@ -83,6 +83,18 @@ func _process(delta):
 	if _state == State.PHASE_RETURN:
 		_tick_phase_delivery(delta)
 		return
+	if (
+		_state == State.MOVING_TO_CC
+		and is_instance_valid(_cc_unit)
+		and Harvesting.valid_dropoff(_unit, _cc_unit)
+		and Utils.Match.Unit.Movement.units_adhere(_unit, _cc_unit)
+	):
+		if is_instance_valid(_sub_action):
+			_sub_action.tree_exited.disconnect(_on_sub_action_finished)
+			_sub_action.queue_free()
+			_sub_action = null
+		_finish_delivery()
+		return
 	if needs_assignment() and _has_pending_orders():
 		queue_free()
 		return
@@ -427,13 +439,31 @@ static func _find_cc_closest_to_unit(unit, hq_only = false):
 		var route = (
 			unit.global_position_yless.distance_to(receiver.global_position_yless)
 			if hq_only
-			else Utils.Match.Unit.Movement.path_distance_to(
-				unit, receiver.global_position_yless, contact
-			)
+			else Utils.Match.Unit.Movement.path_distance_to_unit(unit, receiver, contact)
 		)
 		if route < distance:
 			best = receiver
 			distance = route
+	if best != null or hq_only or choices.is_empty():
+		return best
+	# When a neighboring building sits along the direct ray to a drop-off's
+	# center, a center-targeted path stops on the far side of that obstacle even
+	# though other faces of the HQ/refinery are open. Probe perimeter faces
+	# before declaring no reachable drop-off.
+	for receiver in choices:
+		var contact = (
+			unit.radius
+			+ receiver.radius
+			+ Utils.Match.Unit.Movement.adherence_margin(unit, receiver)
+		)
+		var probe_radius = maxf(receiver.radius + 0.2, contact - 0.3)
+		for index in 8:
+			var angle = index * TAU / 8.0
+			var probe = receiver.global_position + Vector3(cos(angle), 0, sin(angle)) * probe_radius
+			var route = Utils.Match.Unit.Movement.path_distance_to(unit, probe, 0.75)
+			if route < distance:
+				best = receiver
+				distance = route
 	return best
 
 
@@ -474,7 +504,13 @@ func _on_sub_action_finished():
 				or _cc_unit.is_queued_for_deletion()
 				or not _cc_unit.is_constructed()
 			):
-				_wait(Wait.HQ)
+				if _kind != 0:
+					_start_return()
+				else:
+					_wait(Wait.HQ)
+				return
+			if not Utils.Match.Unit.Movement.units_adhere(_unit, _cc_unit):
+				_start_return()
 				return
 			_finish_delivery()
 

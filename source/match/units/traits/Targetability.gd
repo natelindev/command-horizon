@@ -1,8 +1,8 @@
 @tool
 extends Node3D
 
-const ANIMATION_DURATION_S = 0.3
-const RADIUS_DEVIATION_FACTOR = 0.1
+const ANIMATION_DURATION_S = 0.28
+const RADIUS_DEVIATION_FACTOR = 0.72
 
 @export_range(0.001, 50.0) var radius = 1.0:
 	set = _set_radius
@@ -33,16 +33,15 @@ func animate():
 		_tween.stop()
 		_tween.play()
 		return
+	_circle.radius = radius * 1.24
 	_tween = get_tree().create_tween()
 	(
 		_tween
-		. tween_property(
-			_circle, "radius", _circle.radius * RADIUS_DEVIATION_FACTOR, ANIMATION_DURATION_S
-		)
-		. set_ease(Tween.EASE_IN)
-		. set_trans(Tween.TRANS_LINEAR)
+		. tween_property(_circle, "radius", radius * RADIUS_DEVIATION_FACTOR, ANIMATION_DURATION_S)
+		. set_ease(Tween.EASE_OUT)
+		. set_trans(Tween.TRANS_CUBIC)
 	)
-	_tween.tween_callback(_circle.hide).set_delay(ANIMATION_DURATION_S)
+	_tween.tween_callback(_circle.hide)
 
 
 func _update_circle_color():

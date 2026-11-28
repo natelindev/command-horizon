@@ -221,7 +221,13 @@ func _update_formation_preview(pointer):
 	_preview_heading = heading
 	_preview_count = units.size()
 	_formation_preview.begin()
-	var color = Color("c8e5ed")
+	var faction = human.faction if "faction" in human else "bastion"
+	var palette = {
+		"bastion": Color("f2be54"),
+		"helix": Color("5ce8fa"),
+		"frontier": Color("ff9238"),
+	}
+	var color: Color = palette.get(faction, Color("c8e5ed"))
 	for domain in [
 		Constants.Match.Navigation.Domain.TERRAIN, Constants.Match.Navigation.Domain.AIR
 	]:
@@ -233,8 +239,8 @@ func _update_formation_preview(pointer):
 			load("res://source/match/orders/FormationPlanner.gd").posture(units)
 		)
 		for index in slots.size():
-			_formation_preview.slot(slots[index], heading, color)
+			_formation_preview.slot(slots[index], heading, color, faction)
 			if index % 8 != 0:
-				_formation_preview.line(slots[index - 1], slots[index], .14, Color(color, .35))
-	_formation_preview.arrow(_rmb_start_world, heading, 3.0, color)
+				_formation_preview.line(slots[index - 1], slots[index], .11, Color(color, .38))
+	_formation_preview.arrow(_rmb_start_world, heading, 3.0, color, faction)
 	_formation_preview.finish()

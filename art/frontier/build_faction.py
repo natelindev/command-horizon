@@ -53,6 +53,7 @@ STEEL = mat("Frontier_Titanium", (.22, .28, .30), .75, .35)
 TEAM = mat("TeamColor_Frontier", (.72, .22, .055), .25, .42)
 RUBBER = mat("Frontier_Rubber", (.012, .019, .021), 0, .88)
 GLASS = mat("Frontier_Optics", (.62, .80, .56), .25, .22, 1.2)
+CANOPY = mat("Frontier_CanopyGlass", (.045, .075, .085), .15, .08)
 WHITE = mat("Frontier_Canvas", (.70, .65, .48), 0, .86)
 ORANGE = mat("Frontier_Warning", (.95, .23, .025), .1, .5)
 CONCRETE = mat("Frontier_Foundation", (.20, .245, .26), 0, .85)
@@ -483,36 +484,115 @@ def scout():
     lens(0, .46, .29, .17)
 
 
+def _chined_ring(y, rx, z_bot, z_mid, z_top, deck_ratio=0.58):
+    return [
+        (-rx * deck_ratio, y, z_top),
+        (-rx, y, z_mid),
+        (-rx * 0.72, y, z_bot),
+        (rx * 0.72, y, z_bot),
+        (rx, y, z_mid),
+        (rx * deck_ratio, y, z_top),
+    ]
+
+
 def aircraft():
     begin("KestrelGunship")
+    # Faceted chined attack-gunship fuselage with armored cockpit cheeks and tapered tail transition.
     loft("Fuselage", [
-        modeling.rounded_rect_ring(1.02, 3.10, .30, 0, .10, .55, 2),
-        modeling.rounded_rect_ring(1.24, 3.48, .34, 0, .10, .92, 2),
-        modeling.rounded_rect_ring(.94, 2.90, .26, 0, .02, 1.34, 2),
-    ], ARMOR, bevel=.025)
-    loft("Canopy", [
-        modeling.rounded_rect_ring(.96, 1.24, .24, 0, 1.05, 1.05, 2),
-        modeling.rounded_rect_ring(.68, .92, .18, 0, .92, 1.38, 2),
-    ], DARK, bevel=.02)
-    plate("RoofPatch", (0, -.29, 1.4), (.78, .71, .06), material=TEAM)
-    beam("TailBoom", (0, -1.15, 1.06), (0, -3.6, 1.38), .22, .22, STEEL)
-    shape("TailFin", [(-.07, -3.7, 1.25), (-.07, -3.55, 2.29), (-.07, -3.04, 1.33),
-                      (.07, -3.7, 1.25), (.07, -3.55, 2.29), (.07, -3.04, 1.33)],
-          [(0, 1, 2), (3, 5, 4), (0, 3, 4, 1), (1, 4, 5, 2), (2, 5, 3, 0)], TEAM, bevel=.02)
-    rotor("Rotor0", 0, -.25, 1.91, 2.72)
+        _chined_ring(-1.38, .28, .86, 1.04, 1.24, .52),
+        _chined_ring(-0.85, .52, .68, 1.02, 1.38, .64),
+        _chined_ring(0.10, .64, .56, .94, 1.40, .66),
+        _chined_ring(0.88, .58, .58, .92, 1.28, .62),
+        _chined_ring(1.48, .40, .66, .88, 1.08, .58),
+        _chined_ring(1.92, .18, .72, .84, .95, .52),
+    ], ARMOR, bevel=.02)
+    # Armored cockpit cheek sponsons (field-bolted avionics/ammo bays).
+    for side in (-1, 1):
+        loft(f"CheekBay_{side}", [
+            modeling.rounded_rect_ring(.26, 1.32, .05, side * .56, .20, .64, 1),
+            modeling.rounded_rect_ring(.30, 1.44, .06, side * .58, .22, .84, 1),
+            modeling.rounded_rect_ring(.20, 1.18, .04, side * .52, .16, 1.04, 1),
+        ], PANEL, bevel=.015)
+        box(f"CheekStripe_{side}", (side * .72, .22, .85), (.03, .92, .14), TEAM, bevel=.005)
+    # Stepped tandem greenhouse canopy with dark tinted glass and armored frame bows.
+    loft("CanopyGlass", [
+        _chined_ring(.24, .44, 1.18, 1.32, 1.48, .64),
+        _chined_ring(.84, .41, 1.12, 1.28, 1.45, .62),
+        _chined_ring(1.42, .30, 1.00, 1.14, 1.24, .56),
+        _chined_ring(1.66, .18, .92, 1.00, 1.06, .52),
+    ], CANOPY, bevel=.012)
+    for y, rx, z_top, z_side in ((.38, .45, 1.50, 1.28), (.88, .42, 1.46, 1.22), (1.36, .31, 1.26, 1.06)):
+        rod("CanopyBowL", (0, y, z_top), (-rx, y, z_side), .024, DARK, vertices=8)
+        rod("CanopyBowR", (0, y, z_top), (rx, y, z_side), .024, DARK, vertices=8)
+    rod("CanopySpine", (0, .28, 1.49), (0, 1.62, 1.05), .026, DARK, vertices=8)
+    # Dorsal transmission housing, side turboshaft nacelles, intakes, and exhaust deflectors.
+    loft("EngineDeck", [
+        modeling.rounded_rect_ring(.78, 1.34, .14, 0, -.32, 1.34, 2),
+        modeling.rounded_rect_ring(.62, 1.08, .12, 0, -.36, 1.60, 2),
+    ], PANEL, bevel=.02)
+    plate("RoofPatch", (0, -.36, 1.62), (.54, .68, .04), material=TEAM)
+    for side in (-1, 1):
+        lathe(f"Turboshaft_{side}", [
+            (.06, -.74), (.19, -.66), (.22, -.28), (.21, .20), (.16, .38), (.08, .44),
+        ], (side * .54, -.26, 1.34), (0, 1, 0), PANEL, segments=16)
+        cyl(f"IntakeLip_{side}", (side * .54, .18, 1.34), .14, .10, DARK, axis="Y", vertices=14)
+        cyl(f"ExhaustStub_{side}", (side * .64, -.86, 1.30), .11, .34, STEEL, axis="Y", vertices=12)
+        cyl(f"ExhaustBore_{side}", (side * .64, -1.02, 1.30), .08, .08, DARK, axis="Y", vertices=12)
+    # Main rotor mast, swashplate, and 4-blade rotor assembly (keeps single Rotor0 contract).
+    cyl("RotorMast", (0, -.22, 1.72), .11, .38, STEEL, vertices=16)
+    cyl("Swashplate", (0, -.22, 1.78), .20, .06, DARK, vertices=16)
+    rotor("Rotor0", 0, -.22, 1.94, 2.86)
+    # Tapered hexagonal tail boom, dorsal spine, tail fin with team marking, stabilator, and tail rotor.
+    loft("TailBoom", [
+        _chined_ring(-1.18, .30, .86, 1.04, 1.24, .54),
+        _chined_ring(-2.40, .18, .98, 1.12, 1.26, .52),
+        _chined_ring(-3.55, .10, 1.12, 1.22, 1.34, .48),
+    ], ARMOR, bevel=.015)
+    shape("TailFin", [
+        (-.055, -3.76, 1.16), (-.045, -3.52, 2.26), (-.045, -3.14, 2.22), (-.055, -2.98, 1.22),
+        (.055, -3.76, 1.16), (.045, -3.52, 2.26), (.045, -3.14, 2.22), (.055, -2.98, 1.22),
+    ], [
+        (0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)
+    ], ARMOR, bevel=.015)
+    box("TailFinBand", (0, -3.38, 1.88), (.115, .44, .22), TEAM, bevel=.005)
+    # Side-mounted tail rotor hub & 4 blades (static mesh on boom so Rotor0 remains the sole RotorN).
+    cyl("TailRotorHub", (.12, -3.52, 1.92), .07, .16, STEEL, axis="X", vertices=12)
+    for angle in (0, math.pi / 2, math.pi, 3 * math.pi / 2):
+        blade = box("TailBlade", (.18, -3.52 + math.cos(angle) * .28, 1.92 + math.sin(angle) * .28), (.02, .52, .07), DARK, bevel=.004)
+        blade.rotation_euler = (angle, 0, 0)
+    # Stub weapon wings, horizontal tailplanes, rocket pods, missiles, and reinforced skids.
     for side in (-1, 1):
         modeling.airfoil_wing(
-            current.name + f"_Wing_{side}", (0, -.11), (side * 1.42, -.18),
-            .46, .28, .91, .84, .18, .10, current, ARMOR, root, bevel=.015,
+            current.name + f"_Wing_{side}", (side * .42, -.02), (side * 1.62, -.24),
+            .64, .34, 1.00, .92, .16, .08, current, ARMOR, root, bevel=.012,
         )
-        cyl("RocketPod", (side * 1.24, -.11, .66), .25, 1.05, DARK, axis="Y", vertices=18)
-        for dx in (-.09, .09):
-            cyl("RocketNose", (side * 1.24 + dx, .44, .66), .06, .04, ORANGE, axis="Y", vertices=12)
-        rod("Skid", (side * .79, -1.3, .15), (side * .79, 1.4, .15), .055, STEEL, vertices=12)
-        for y in (-.69, .73):
-            rod("SkidStrut", (side * .4, y, .73), (side * .79, y, .15), .045, STEEL, vertices=10)
-    lens(0, 1.7, .87, .34)
-    pivot("Muzzle", (0, 1.83, .67))
+        box(f"WingStripe_{side}", (side * 1.12, -.14, 1.03), (.38, .22, .02), TEAM, bevel=.004)
+        modeling.airfoil_wing(
+            current.name + f"_Tailplane_{side}", (side * .08, -3.16), (side * .78, -3.32),
+            .38, .20, 1.22, 1.22, .07, .04, current, PANEL, root, bevel=.008,
+        )
+        # Inner multi-tube rocket pod + outer twin anti-armor missiles.
+        box(f"InnerPylon_{side}", (side * 1.02, -.08, .82), (.08, .48, .22), STEEL, bevel=.008)
+        cyl(f"RocketPod_{side}", (side * 1.02, -.06, .66), .20, 1.02, DARK, axis="Y", vertices=16)
+        cyl(f"RocketPodBand_{side}", (side * 1.02, .14, .66), .208, .12, TEAM, axis="Y", vertices=16)
+        for dx, dz in ((0, 0), (.09, .05), (-.09, .05), (.09, -.05), (-.09, -.05), (0, .10), (0, -.10)):
+            cyl(f"RocketTip_{side}", (side * 1.02 + dx, .47, .66 + dz), .036, .06, ORANGE, axis="Y", vertices=8)
+        box(f"OuterPylon_{side}", (side * 1.46, -.20, .82), (.07, .40, .18), STEEL, bevel=.008)
+        for dz in (-.06, .08):
+            cyl(f"Missile_{side}", (side * 1.46, -.12, .68 + dz), .045, .96, WHITE, axis="Y", vertices=10)
+            cyl(f"MissileHead_{side}", (side * 1.46, .38, .68 + dz), .035, .10, DARK, axis="Y", vertices=10)
+        # Reinforced landing skids with angled tubular struts and curved toe tips.
+        rod(f"Skid_{side}", (side * .82, -1.24, .14), (side * .82, 1.28, .14), .05, STEEL, vertices=12)
+        rod(f"SkidToe_{side}", (side * .82, 1.26, .14), (side * .82, 1.48, .26), .045, STEEL, vertices=10)
+        for y in (-.66, .72):
+            rod(f"SkidStrut_{side}", (side * .42, y, .68), (side * .82, y, .14), .042, STEEL, vertices=10)
+    # Chin FLIR targeting turret + underslung rotary cannon.
+    cyl("SensorTurret", (0, 1.72, .88), .18, .20, DARK, vertices=14)
+    lens(0, 1.88, .88, .24)
+    cyl("ChinMount", (0, 1.24, .50), .18, .24, DARK, vertices=14)
+    for dx in (-.05, .05):
+        cyl("ChinBarrel", (dx, 1.66, .48), .028, .72, STEEL, axis="Y", vertices=10)
+    pivot("Muzzle", (0, 2.04, .48))
 
 
 def foundation(name, w, l):
@@ -798,7 +878,9 @@ def sam_technical():
 
 damage_only = "--damage-only" in sys.argv
 motion_only = "--motion-only" in sys.argv
-if "--vehicles-only" in sys.argv:
+if "--aircraft-only" in sys.argv:
+    aircraft()
+elif "--vehicles-only" in sys.argv:
     engineer(); armor(); crawler(True); crawler(); armor(True)
     battle_rig(); demolition_buggy(); sam_technical()
 elif "--signature-only" in sys.argv:
@@ -929,6 +1011,10 @@ for name, collection, asset_root in assets:
     scene.render.film_transparent = True
     collection.hide_render = True
     manifest[next(i for i, item in enumerate(manifest) if item["name"] == name)]["bounds"] = {"min": list(lo), "max": list(hi)}
+
+if "--aircraft-only" in sys.argv:
+    export_manifest.merge_partial(SOURCE / "manifest.json", manifest)
+    raise SystemExit(0)
 
 if "--signature-only" in sys.argv:
     (SOURCE / "signature-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

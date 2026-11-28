@@ -127,6 +127,12 @@ func phase_shift(origin: Vector3, destination: Vector3, owner = null, unit = nul
 				)
 		if arriving and foliage != null:
 			foliage.impulse(point, 2.4)
+		if (
+			arriving
+			and get_parent().combat_audio != null
+			and get_parent().combat_audio.has_method("phase_shift")
+		):
+			get_parent().combat_audio.phase_shift(unit, point, owner)
 
 
 func _advance_phase_remnants(delta):
@@ -671,6 +677,11 @@ func _shield_lifecycle(reference: WeakRef, mode):
 		return
 	_add_shield_visual(unit, unit.global_position, mode)
 	if mode == ShieldImpactVisual.Mode.BREAK:
+		if (
+			get_parent().combat_audio != null
+			and get_parent().combat_audio.has_method("shield_break")
+		):
+			get_parent().combat_audio.shield_break(unit, unit.global_position)
 		for index in 12:
 			var direction = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 12.0)
 			_puff(

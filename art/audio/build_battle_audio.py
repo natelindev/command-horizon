@@ -48,7 +48,7 @@ GLOSSARY = ('Aegis, Nyx, Rook, Bastion, Helix, Kestrel, Ironback, Outrider, Wrai
 def clip_source_hash(text, speaker, identity, event, index, faction, provenance):
     # Only a clip's own cast/model is an input. Recasting one unit must not
     # invalidate every other speaker, machine and building in the bank.
-    synthesis = {'mechanical_revision': 4}
+    synthesis = {'mechanical_revision': 5}
     if speaker is not None:
         profile = provenance['profiles'][speaker]
         model = provenance['models'][profile['engine']]
@@ -77,24 +77,119 @@ def write_wave(path, data, rate=RATE):
         wav.writeframes((data * 32767).astype('<i2').tobytes())
 
 
-def structure_console(identity, event, variant):
-    """Existing structure console feedback, preserved independently of autonomous units."""
-    seed = int.from_bytes(hashlib.sha256(f'{identity}:{event}:{variant}'.encode()).digest()[:4], 'little')
+def structure_console(identity, event, variant, role='', faction='bastion', rate=RATE):
+    """Tactile, faction-styled hardware console acoustics for structures (zero harsh modem beeps)."""
+    seed = int.from_bytes(
+        hashlib.sha256(f'{faction}:{role}:{identity}:{event}:{variant}'.encode()).digest()[:4],
+        'little',
+    )
     rng = np.random.default_rng(seed)
-    base = 95 + (identity * 37) % 300
-    duration = .42 if event == 'select' else (.8 if event == 'ready' else .55)
-    t = np.arange(int(RATE * duration)) / RATE
-    env = np.minimum(t / .015, 1) * np.minimum((duration - t) / .09, 1)
-    gear = np.sin(2 * np.pi * (base * t + 24 * t * t))
-    whine = np.sin(2 * np.pi * base * 3.03 * t + .9 * np.sin(2 * np.pi * 23 * t))
-    noise = rng.normal(0, .06, len(t))
-    body = (gear * .13 + whine * .055 + noise) * env
-    for i, ratio in enumerate([1., 1.25, 1.5] if event != 'attack' else [1.5, 1., .75]):
-        start = .06 + i * duration / 4
-        age = np.maximum(t - start, 0)
-        pulse = (t >= start) * np.exp(-age * 38)
-        body += .18 * np.sin(2 * np.pi * (base * 3 + variant * 43) * ratio * age) * pulse
-    return body
+    duration = .36 if event == 'select' else (.56 if event == 'ready' else .42)
+    t = np.arange(int(rate * duration), dtype=np.float64) / rate
+    n = len(t)
+    freqs = np.fft.rfftfreq(n, 1.0 / rate)
+
+    def shaped_noise(low, high):
+        spec = np.fft.rfft(rng.standard_normal(n))
+        pink = 1.0 / np.maximum(freqs, 25.0) ** 0.55
+        pink[0] = 0.0
+        hp = 1.0 - np.exp(-((freqs / max(low, 1.0)) ** 4))
+        lp = np.exp(-((freqs / max(high, 40.0)) ** 4))
+        sig = np.fft.irfft(spec * pink * hp * lp, n=n)
+        return sig / max(float(np.sqrt(np.mean(sig * sig))), 1e-8)
+
+    def env_exp(start, attack, decay):
+        age = np.maximum(t - start, 0.0)
+        return (t >= start) * (1.0 - np.exp(-age / max(attack, 1e-4))) * np.exp(-age / max(decay, 1e-4))
+
+    def warm_note(freq, start, decay, attack=0.004):
+        age = np.maximum(t - start, 0.0)
+        ph = 2.0 * np.pi * (freq * age + (freq * 0.01) * 0.006 * (1.0 - np.exp(-age / 0.006)))
+        return (
+            0.62 * np.sin(ph) * env_exp(start, attack, decay)
+            + 0.24 * np.sin(ph * 2.0 + 0.5) * env_exp(start, attack, decay * 0.5)
+            + 0.09 * np.sin(ph * 3.0 + 1.2) * env_exp(start, attack, decay * 0.28)
+        )
+
+    # Distinct pitch root per structure role so buildings feel recognizable without sounding like toys.
+    role_offsets = {
+        'CommandCenter': 0, 'PowerPlant': -5, 'Barracks': 2, 'VehicleFactory': -2,
+        'AircraftFactory': 5, 'CommandLab': 7, 'Refinery': -3, 'AntiGroundTurret': 4,
+        'AntiAirTurret': 9, 'DroneBay': 10, 'ForwardRefinery': -1,
+    }
+    semitone = role_offsets.get(role, (identity % 7) - 3) + variant * 0.65
+    scale = 2.0 ** (semitone / 12.0)
+
+    # Tactile onset hardware click
+    click = shaped_noise(900.0, 4800.0) * env_exp(0.0, 0.0004, 0.0045)
+    body = np.zeros(n, dtype=np.float64)
+
+    if faction == 'helix':
+        # Silky harmonic glass telemetry + soft clean-room phase shimmer
+        root = 392.0 * scale
+        intervals = [1.0, 1.5] if event != 'attack' else [1.5, 1.125]
+        if event == 'ready':
+            intervals = [1.0, 1.25, 1.5]
+        elif event == 'stop':
+            intervals = [1.25, 1.0]
+        hum = (
+            0.14 * np.sin(2.0 * np.pi * (140.0 * scale) * t)
+            + 0.08 * np.sin(2.0 * np.pi * (280.0 * scale) * t + 0.6)
+        ) * env_exp(0.0, 0.018, duration * 0.55)
+        air = 0.09 * shaped_noise(600.0, 3400.0) * env_exp(0.0, 0.012, duration * 0.45)
+        body = 0.22 * click + hum + air
+        for i, ratio in enumerate(intervals):
+            body += 0.34 * warm_note(root * ratio, 0.008 + i * 0.055, 0.095, 0.004)
+    elif faction == 'frontier':
+        # Rugged field relay latch + warm low analog generator hum + crisp mechanical confirmation
+        root = 261.63 * scale
+        latch = (
+            0.55 * shaped_noise(220.0, 2600.0) * env_exp(0.0, 0.0006, 0.014)
+            + 0.45 * np.sin(2.0 * np.pi * (155.0 * scale) * t) * env_exp(0.0, 0.0008, 0.022)
+        )
+        hum = (
+            0.16 * shaped_noise(95.0, 460.0)
+            + 0.12 * np.sin(2.0 * np.pi * (112.0 * scale) * t)
+        ) * env_exp(0.004, 0.020, duration * 0.50)
+        intervals = [1.0, 1.333] if event != 'attack' else [1.333, 0.89]
+        if event == 'ready':
+            intervals = [1.0, 1.25, 1.5]
+        elif event == 'stop':
+            intervals = [1.0, 0.75]
+        body = 0.34 * click + 0.42 * latch + hum
+        for i, ratio in enumerate(intervals):
+            body += 0.28 * warm_note(root * ratio, 0.020 + i * 0.062, 0.068, 0.003)
+    else:
+        # Bastion: armored steel relay detent + warm hydraulic/generator body + muted brass fifth
+        root = 293.66 * scale
+        detent = (
+            0.50 * shaped_noise(160.0, 2400.0) * env_exp(0.0, 0.0006, 0.016)
+            + 0.50 * np.sin(2.0 * np.pi * (128.0 * scale) * t) * env_exp(0.0, 0.0008, 0.028)
+        )
+        hum = (
+            0.18 * shaped_noise(80.0, 420.0)
+            + 0.12 * np.sin(2.0 * np.pi * (98.0 * scale) * t)
+        ) * env_exp(0.005, 0.022, duration * 0.55)
+        intervals = [1.0, 1.5] if event != 'attack' else [1.5, 1.0]
+        if event == 'ready':
+            intervals = [1.0, 1.25, 1.5]
+        elif event == 'stop':
+            intervals = [1.25, 0.94]
+        body = 0.28 * click + 0.46 * detent + hum
+        for i, ratio in enumerate(intervals):
+            body += 0.30 * warm_note(root * ratio, 0.016 + i * 0.058, 0.082, 0.0035)
+
+    # Gentle console-room micro reflection so it feels grounded in physical space
+    ir_len = min(n, round(0.08 * rate))
+    t_ir = np.arange(ir_len, dtype=np.float64) / rate
+    ir = rng.standard_normal(ir_len) * np.exp(-t_ir / 0.028)
+    ir[: round(0.005 * rate)] = 0.0
+    ir /= max(float(np.sqrt(np.sum(ir * ir))), 1e-8)
+    fft_n = 1 << (n + ir_len - 1).bit_length()
+    wet = np.fft.irfft(np.fft.rfft(body, n=fft_n) * np.fft.rfft(ir, n=fft_n), n=fft_n)[:n]
+    out = np.tanh((body + 0.14 * wet) * 1.15)
+    fade = np.minimum(t / 0.004, 1.0) * np.minimum((duration - t) / 0.035, 1.0)
+    return out * fade
 
 
 def mechanical(identity, event, variant, role, faction, duration=None, rate=RATE):
@@ -102,10 +197,10 @@ def mechanical(identity, event, variant, role, faction, duration=None, rate=RATE
 
     Workers: piston motor + ratchet; repair bots: servo sweeps + tool taps;
     combat robots: heavy gear + latch; drones: rotor tremolo + telemetry arpeggio.
-    Robots speak over this body; buildings retain their short console/motor feedback.
+    Robots speak over this body; buildings use faction-styled console acoustics.
     """
     if role not in MACHINES:
-        return structure_console(identity, event, variant)
+        return structure_console(identity, event, variant, role, faction, rate)
     seed = int.from_bytes(hashlib.sha256(f'{identity}:{event}:{variant}'.encode()).digest()[:4], 'little')
     rng = np.random.default_rng(seed)
     if duration is None:
@@ -161,11 +256,8 @@ def mechanical(identity, event, variant, role, faction, duration=None, rate=RATE
 
 
 def ui_sound(kind):
-    duration = {'click': .055, 'select': .075, 'adjust': .035, 'confirm': .14}[kind]
-    t = np.arange(int(RATE * duration)) / RATE
-    freq = {'click': 710, 'select': 980, 'adjust': 550, 'confirm': 850}[kind]
-    env = np.minimum(t / .004, 1) * np.exp(-t * 45) * np.minimum((duration - t) / .009, 1)
-    return .28 * env * (np.sin(2 * np.pi * freq * t) + .2 * np.sin(2 * np.pi * freq * 2 * t))
+    from build_ui_audio import synthesize_ui
+    return synthesize_ui(kind).astype(np.float64) / 32768.0
 
 
 def words(text):

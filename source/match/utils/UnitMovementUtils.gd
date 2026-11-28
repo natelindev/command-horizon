@@ -229,6 +229,9 @@ static func path_distance_to(unit, point, arrival_range):
 	var iteration = NavigationServer3D.map_get_iteration_id(nav)
 	if not movement._synchronized or iteration == 0:
 		return unit.global_position_yless.distance_to(point * Vector3(1, 0, 1))
+	var target = point
+	if unit.movement_domain == Constants.Match.Navigation.Domain.TERRAIN and movement._elevated:
+		target = Vector3(point.x, movement._map.height_at(Vector2(point.x, point.z)), point.z)
 	var frame = Engine.get_physics_frames()
 	var navigation = movement._match.navigation
 	var cache = navigation.distance_cache
@@ -237,13 +240,33 @@ static func path_distance_to(unit, point, arrival_range):
 		cache.clear()
 	# Sorting and economic planning repeatedly ask the identical reachability
 	# question. Exact endpoints and map publication keep teleports/rebakes live.
-	var key = [nav, iteration, unit.global_position, point, arrival_range]
+	var key = [nav, iteration, unit.global_position, target, arrival_range]
 	if cache.has(key):
 		return cache[key]
 	var distance = _path_distance(
-		nav, unit.global_position, point, arrival_range, navigation.path_query
+		nav, unit.global_position, target, arrival_range, navigation.path_query
 	)
 	cache[key] = distance
+	return distance
+
+
+static func path_distance_to_unit(unit, target_unit, arrival_range) -> float:
+	if not Footprint.has_outline(target_unit):
+		return path_distance_to(unit, target_unit.global_position, arrival_range)
+	var movement = unit.get_node("Movement")
+	var nav = movement.get_navigation_map()
+	var iteration = NavigationServer3D.map_get_iteration_id(nav)
+	if not movement._synchronized or iteration == 0:
+		return Footprint.reach_distance(target_unit, unit.global_position)
+	var target = target_unit.global_position
+	if unit.movement_domain == Constants.Match.Navigation.Domain.TERRAIN and movement._elevated:
+		target = Vector3(target.x, movement._map.height_at(Vector2(target.x, target.z)), target.z)
+	var path = movement._match.navigation.path_query.path(nav, unit.global_position, target)
+	if path.is_empty() or Footprint.reach_distance(target_unit, path[-1]) > arrival_range:
+		return INF
+	var distance = 0.0
+	for index in range(1, path.size()):
+		distance += path[index - 1].distance_to(path[index])
 	return distance
 
 
@@ -312,14 +335,16 @@ static func adherence_margin(unit_a, unit_b):
 	var obstacle = unit_b.get_node_or_null("MovementObstacle")
 	if obstacle != null and obstacle.affect_navigation_mesh:
 		# The shared terrain mesh is eroded for the largest unit and rounded to
-		# cells. Engineers must be able to gather, deliver and build from that
-		# reachable boundary. Mobile-unit contact retains the ordinary margin.
+		# diagonal voxel corners, and NavigationAgent3D finishes within
+		# target_desired_distance of that boundary. Engineers must always adhere
+		# cleanly at any reachable corner of a drop-off, structure or deposit.
 		margin = maxf(
 			margin,
 			(
 				Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
 				- unit_a.radius
-				+ Constants.Match.Terrain.Navmesh.CELL_SIZE
+				+ Constants.Match.Terrain.Navmesh.CELL_SIZE * 1.5
+				+ 0.15
 			)
 		)
 	return margin

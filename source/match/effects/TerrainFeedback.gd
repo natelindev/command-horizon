@@ -1,6 +1,6 @@
 extends MeshInstance3D
 
-## Small depth-tested ribbons sampled on the gameplay surface, including ramps.
+## Depth-tested world-space tactical ribbons and holographic accents sampled on terrain.
 const Cache = preload("res://source/utils/RuntimeCache.gd")
 var map
 var _surface = ImmediateMesh.new()
@@ -47,20 +47,85 @@ func fade(alpha: float):
 	_material.albedo_color.a = clampf(alpha, 0.0, 1.0)
 
 
-func ring(center: Vector3, radius: float, width: float, color: Color):
-	for index in 48:
-		var a = TAU * index / 48.0
-		var b = TAU * (index + 1) / 48.0
+func ring(
+	center: Vector3,
+	radius: float,
+	width: float,
+	color: Color,
+	segments: int = 48,
+	lift: float = 0.0
+):
+	polygon_ring(center, radius, width, segments, 0.0, color, lift)
+
+
+func polygon_ring(
+	center: Vector3,
+	radius: float,
+	width: float,
+	sides: int,
+	rotation: float,
+	color: Color,
+	lift: float = 0.0
+):
+	var inner = maxf(0.01, radius - width * .5)
+	var outer = radius + width * .5
+	for index in sides:
+		var a = rotation + TAU * index / float(sides)
+		var b = rotation + TAU * (index + 1) / float(sides)
+		var dir_a = Vector3(cos(a), 0, sin(a))
+		var dir_b = Vector3(cos(b), 0, sin(b))
 		_quad(
-			center + Vector3(cos(a), 0, sin(a)) * (radius - width * .5),
-			center + Vector3(cos(a), 0, sin(a)) * (radius + width * .5),
-			center + Vector3(cos(b), 0, sin(b)) * (radius + width * .5),
-			center + Vector3(cos(b), 0, sin(b)) * (radius - width * .5),
-			color
+			center + dir_a * inner,
+			center + dir_a * outer,
+			center + dir_b * outer,
+			center + dir_b * inner,
+			color,
+			lift
 		)
 
 
-func line(start: Vector3, end: Vector3, width: float, color: Color):
+func arc(
+	center: Vector3,
+	radius: float,
+	width: float,
+	start_angle: float,
+	end_angle: float,
+	color: Color,
+	segments: int = 16,
+	lift: float = 0.0
+):
+	var inner = maxf(0.01, radius - width * .5)
+	var outer = radius + width * .5
+	var count = maxi(1, segments)
+	for index in count:
+		var t0 = float(index) / count
+		var t1 = float(index + 1) / count
+		var a = lerpf(start_angle, end_angle, t0)
+		var b = lerpf(start_angle, end_angle, t1)
+		var dir_a = Vector3(cos(a), 0, sin(a))
+		var dir_b = Vector3(cos(b), 0, sin(b))
+		_quad(
+			center + dir_a * inner,
+			center + dir_a * outer,
+			center + dir_b * outer,
+			center + dir_b * inner,
+			color,
+			lift
+		)
+
+
+func filled_polygon(
+	center: Vector3, radius: float, sides: int, rotation: float, color: Color, lift: float = 0.0
+):
+	for index in sides:
+		var a = rotation + TAU * index / float(sides)
+		var b = rotation + TAU * (index + 1) / float(sides)
+		_vertex_lifted(center, color, lift)
+		_vertex_lifted(center + Vector3(cos(a), 0, sin(a)) * radius, color, lift)
+		_vertex_lifted(center + Vector3(cos(b), 0, sin(b)) * radius, color, lift)
+
+
+func line(start: Vector3, end: Vector3, width: float, color: Color, lift: float = 0.0):
 	var direction = (end - start) * Vector3(1, 0, 1)
 	if direction.is_zero_approx():
 		return
@@ -69,34 +134,161 @@ func line(start: Vector3, end: Vector3, width: float, color: Color):
 	for index in steps:
 		var a = start.lerp(end, float(index) / steps)
 		var b = start.lerp(end, float(index + 1) / steps)
-		_quad(a - side, a + side, b + side, b - side, color)
+		_quad(a - side, a + side, b + side, b - side, color, lift)
 
 
-func slot(center: Vector3, heading: Vector3, color: Color):
-	var side = Vector3(-heading.z, 0, heading.x) * .22
-	for point in [
-		center + heading * .38, center - heading * .16 + side, center - heading * .16 - side
-	]:
-		_vertex(point, color)
+func chevron(
+	center: Vector3, heading: Vector3, size: float, width: float, color: Color, lift: float = 0.0
+):
+	var fwd = (heading * Vector3(1, 0, 1)).normalized()
+	if fwd.is_zero_approx():
+		fwd = Vector3.FORWARD
+	var side = Vector3(-fwd.z, 0, fwd.x)
+	var tip = center + fwd * (size * 0.52)
+	var left = center - fwd * (size * 0.42) + side * (size * 0.62)
+	var right = center - fwd * (size * 0.42) - side * (size * 0.62)
+	line(left, tip, width, color, lift)
+	line(right, tip, width, color, lift)
 
 
-func arrow(start: Vector3, heading: Vector3, length: float, color: Color):
+func wedge_pip(
+	center: Vector3,
+	heading: Vector3,
+	length: float,
+	half_width: float,
+	color: Color,
+	lift: float = 0.0
+):
+	var fwd = (heading * Vector3(1, 0, 1)).normalized()
+	if fwd.is_zero_approx():
+		fwd = Vector3.FORWARD
+	var side = Vector3(-fwd.z, 0, fwd.x) * half_width
+	var tip = center + fwd * (length * 0.62)
+	var tail_l = center - fwd * (length * 0.38) + side
+	var tail_r = center - fwd * (length * 0.38) - side
+	var notch = center - fwd * (length * 0.14)
+	_vertex_lifted(tip, color, lift)
+	_vertex_lifted(tail_l, color, lift)
+	_vertex_lifted(notch, color, lift)
+	_vertex_lifted(tip, color, lift)
+	_vertex_lifted(notch, color, lift)
+	_vertex_lifted(tail_r, color, lift)
+
+
+func diamond_pip(
+	center: Vector3,
+	heading: Vector3,
+	length: float,
+	half_width: float,
+	color: Color,
+	lift: float = 0.0
+):
+	var fwd = (heading * Vector3(1, 0, 1)).normalized()
+	if fwd.is_zero_approx():
+		fwd = Vector3.FORWARD
+	var side = Vector3(-fwd.z, 0, fwd.x) * half_width
+	var front = center + fwd * (length * 0.58)
+	var back = center - fwd * (length * 0.42)
+	_vertex_lifted(front, color, lift)
+	_vertex_lifted(center + side, color, lift)
+	_vertex_lifted(center - side, color, lift)
+	_vertex_lifted(back, color, lift)
+	_vertex_lifted(center - side, color, lift)
+	_vertex_lifted(center + side, color, lift)
+
+
+func beacon_pillar(
+	center: Vector3,
+	bottom_radius: float,
+	top_radius: float,
+	height: float,
+	bottom_color: Color,
+	top_color: Color,
+	sides: int = 6,
+	rotation: float = 0.0
+):
+	var base_y = _ground_y(center) + 0.075
+	for index in sides:
+		var a = rotation + TAU * index / float(sides)
+		var b = rotation + TAU * (index + 1) / float(sides)
+		var dir_a = Vector3(cos(a), 0, sin(a))
+		var dir_b = Vector3(cos(b), 0, sin(b))
+		var b0 = Vector3(
+			center.x + dir_a.x * bottom_radius, base_y, center.z + dir_a.z * bottom_radius
+		)
+		var b1 = Vector3(
+			center.x + dir_b.x * bottom_radius, base_y, center.z + dir_b.z * bottom_radius
+		)
+		var t0 = Vector3(
+			center.x + dir_a.x * top_radius, base_y + height, center.z + dir_a.z * top_radius
+		)
+		var t1 = Vector3(
+			center.x + dir_b.x * top_radius, base_y + height, center.z + dir_b.z * top_radius
+		)
+		_vertex_raw(b0, bottom_color)
+		_vertex_raw(b1, bottom_color)
+		_vertex_raw(t1, top_color)
+		_vertex_raw(b0, bottom_color)
+		_vertex_raw(t1, top_color)
+		_vertex_raw(t0, top_color)
+
+
+func slot(center: Vector3, heading: Vector3, color: Color, faction: String = "bastion"):
+	var dark = Color(0.05, 0.07, 0.09, color.a * 0.72)
+	if faction == "helix":
+		diamond_pip(center, heading, 0.72, 0.30, dark, 0.0)
+		diamond_pip(center, heading, 0.56, 0.22, color, 0.015)
+	elif faction == "frontier":
+		wedge_pip(center, heading, 0.76, 0.34, dark, 0.0)
+		wedge_pip(center, heading, 0.58, 0.25, color, 0.015)
+	else:
+		polygon_ring(center, 0.30, 0.09, 8, PI * 0.125, dark, 0.0)
+		wedge_pip(center, heading, 0.64, 0.27, color, 0.015)
+
+
+func arrow(
+	start: Vector3, heading: Vector3, length: float, color: Color, faction: String = "bastion"
+):
 	var tip = start + heading * length
-	var side = Vector3(-heading.z, 0, heading.x)
-	line(start, tip, .09, color)
-	line(tip, tip - heading * .65 + side * .45, .12, color)
-	line(tip, tip - heading * .65 - side * .45, .12, color)
+	var dark = Color(0.05, 0.07, 0.09, color.a * 0.70)
+	if faction == "helix":
+		line(start, tip - heading * 0.25, 0.16, dark, 0.0)
+		line(start, tip - heading * 0.18, 0.08, color, 0.015)
+		diamond_pip(tip - heading * 0.22, heading, 0.95, 0.38, dark, 0.005)
+		diamond_pip(tip - heading * 0.22, heading, 0.76, 0.28, color, 0.02)
+	elif faction == "frontier":
+		line(start, tip - heading * 0.20, 0.22, dark, 0.0)
+		line(start, tip - heading * 0.16, 0.11, color, 0.015)
+		chevron(tip - heading * 0.28, heading, 0.92, 0.20, dark, 0.005)
+		chevron(tip - heading * 0.28, heading, 0.88, 0.11, color, 0.02)
+		chevron(tip - heading * 0.88, heading, 0.70, 0.09, Color(color, color.a * 0.78), 0.02)
+	else:
+		line(start, tip - heading * 0.18, 0.20, dark, 0.0)
+		line(start, tip - heading * 0.14, 0.095, color, 0.015)
+		chevron(tip - heading * 0.24, heading, 0.86, 0.19, dark, 0.005)
+		chevron(tip - heading * 0.24, heading, 0.82, 0.105, color, 0.02)
+		chevron(tip - heading * 0.74, heading, 0.64, 0.085, Color(color, color.a * 0.82), 0.02)
 
 
-func _quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, color: Color):
+func _ground_y(point: Vector3) -> float:
+	return map.height_at(Vector2(point.x, point.z)) if is_instance_valid(map) else point.y
+
+
+func _quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, color: Color, lift: float = 0.0):
 	for point in [a, b, c, a, c, d]:
-		_vertex(point, color)
+		_vertex_lifted(point, color, lift)
 
 
 func _vertex(point: Vector3, color: Color):
-	if is_instance_valid(map):
-		point.y = map.height_at(Vector2(point.x, point.z))
-	point.y += .075
+	_vertex_lifted(point, color, 0.0)
+
+
+func _vertex_lifted(point: Vector3, color: Color, lift: float):
+	point.y = _ground_y(point) + 0.075 + lift
+	_vertex_raw(point, color)
+
+
+func _vertex_raw(point: Vector3, color: Color):
 	_surface.surface_set_color(color)
 	_surface.surface_add_vertex(to_local(point) if is_inside_tree() else point)
 	_vertices += 1
