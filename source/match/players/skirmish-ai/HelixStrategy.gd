@@ -8,8 +8,10 @@ static func profile(base: Dictionary) -> Dictionary:
 	result.first_wave *= 0.8
 	result.wave_interval *= 0.75
 	result.research = [
+		"failsafe_capacitors",
 		"plasma_shields",
 		"flux_capacitors",
+		"harmonic_lattice",
 		"continuous_coherence",
 		"beam_amplification",
 		"phase_thrusters"

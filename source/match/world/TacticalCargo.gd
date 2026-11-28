@@ -32,6 +32,8 @@ func _ready():
 		Models.aircraft(_model, color, true)
 	elif kind == "radar":
 		Models.radar(_model)
+	elif kind == "refined_core":
+		Models.refined_core(_model)
 	else:
 		Models.cargo(_model, color, kind == "repair")
 	_model_origin = _model.position

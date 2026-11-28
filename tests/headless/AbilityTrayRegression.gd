@@ -230,7 +230,7 @@ func _signature_refresh_and_restore(human, hud, tray):
 	if saved == null:
 		return
 	_check(
-		saved.snapshot_version == 22, "Tray save verification changed the current snapshot version"
+		saved.snapshot_version == 23, "Tray save verification changed the current snapshot version"
 	)
 	var signatures_before = human.signatures.capture(builder._reference)
 	var unit_before = first.signature.capture()

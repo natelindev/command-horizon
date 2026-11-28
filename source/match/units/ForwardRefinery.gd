@@ -1,11 +1,23 @@
 extends "res://source/match/units/Structure.gd"
 
-## Preserve fractional smelting yield across trips (and saves): eight materials
-## yield nine immediately and the remaining fifth accumulates toward the next.
+## Bastion Industrial Smelter & Forward Drop-Off.
+## Preserves fractional smelting yield on Raw deliveries and runs upfront
+## Risk-the-Batch smelting through its RefiningComponent trait.
+const RefiningComponent = preload("res://source/match/units/traits/RefiningComponent.gd")
+
 var smelting_remainder: float = 0.0
+var refining = null
+
+
+func _ready():
+	await super()
+	refining = RefiningComponent.new("bastion")
+	add_child(refining)
 
 
 func refine_materials(amount: int) -> int:
+	if refining != null:
+		refining.record_delivery()
 	var refined = (
 		amount * (1.0 + load("res://source/match/economy/HarvestingProfile.gd").SMELTING_BONUS)
 	)

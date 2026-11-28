@@ -7,8 +7,10 @@ static func profile(base: Dictionary) -> Dictionary:
 	result.first_wave *= 1.2
 	result.wave_interval *= 1.15
 	result.research = [
+		"pressurized_furnaces",
 		"reactive_armor",
 		"siege_logistics",
+		"slag_recirculation",
 		"fortress_doctrine",
 		"tandem_rockets",
 		"bunker_reinforcements"

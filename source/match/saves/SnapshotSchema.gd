@@ -108,7 +108,8 @@ func validate(data):
 			+ "visual_serial:int units_produced:int repair_elapsed:num camera:dict "
 			+ "players:list units:list resources:list mission:dict fog:dict "
 			+ "structure_memory:list neutral_buildings:list battle_record:dict ambient:list "
-			+ "rounds:dict battlefield_wear:list grenades:dict engineering:dict commander:dict events:dict"
+			+ "rounds:dict battlefield_wear:list grenades:dict engineering:dict commander:dict "
+			+ "events:dict refining:dict"
 			+ (" obstacles:list" if data is Dictionary and data.has("obstacles") else "")
 		)
 	):
@@ -205,7 +206,9 @@ func validate(data):
 		if not entry.wreck.is_empty():
 			var wreck = entry.wreck
 			wreck_count += 1
-			if not _shape(wreck, "wreck_role:text wreck_faction:text salvage_left:num"):
+			if not _shape(
+				wreck, "wreck_role:text wreck_faction:text salvage_left:num refined_b:int"
+			):
 				return false
 			if (
 				wreck.wreck_role not in Salvage.ROLES
@@ -1526,7 +1529,8 @@ func _site_records(records, map_path):
 			site,
 			(
 				"id:text hp:num owner:text candidate:text progress:num contested:bool "
-				+ "income_left:num stock_a:int stock_b:int jobs:list radar_left:num radar_points:list"
+				+ "income_left:num canister_left:num stock_a:int stock_b:int jobs:list "
+				+ "radar_left:num radar_points:list"
 			)
 		):
 			return false

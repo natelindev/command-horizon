@@ -6,5 +6,6 @@
 script = ExtResource("roster")
 faction_id = "helix"
 excluded_structures = PackedStringArray("ForwardRefinery")
+excluded_units = PackedStringArray("CrackRig")
 scenes = {"AdvancedTank": "res://source/match/units/faction/PrismSkimmer.tscn", "CombatRobot": "res://source/match/units/faction/PhaseLancer.tscn", "AntiAirVehicle": "res://source/match/units/faction/SkywardInterceptor.tscn"}
 statistics = {"Worker": {"hp_max": 54},"AdvancedTank": {"hp_max": 65, "attack_range": 12.0, "sight_range": 15.0, "attack_damage": 5.5, "attack_interval": 0.2, "speed": 3.6}, "CombatRobot": {"hp_max": 59, "speed": 4.2}}

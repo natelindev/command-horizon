@@ -63,7 +63,7 @@ func _attach_campaign_story():
 
 
 func _spawn_player_units(player, spawn_transform):
-	player.resource_a = 120 if settings.advanced_start else 60
+	player.resource_a = 140 if settings.advanced_start else 80
 	player.resource_b = 60 if settings.advanced_start else 12
 	player.resource_a *= settings.starting_resources_multiplier
 	player.resource_b *= settings.starting_resources_multiplier

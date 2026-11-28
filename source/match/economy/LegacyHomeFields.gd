@@ -82,15 +82,46 @@ static func standardize(game) -> bool:
 			push_error("Legacy home field has no safe nine-metre arc: " + game.settings.map_path)
 			return false
 		plans.append(plan)
+	var raw_scene = load("res://source/match/units/non-player/ResourceA.tscn")
 	for index in homes.size():
 		var nodes = homes[index].nodes
 		var plan = plans[index]
 		for slot in nodes.size():
 			var node = nodes[slot]
-			node.set(
-				"resource_a" if slot < 5 else "resource_b", Stocks.STOCKS.home[0 if slot < 5 else 1]
-			)
-			node.relocate_field(map.ground_point(plan.points[slot]), map.ground_point(plan.origin))
+			if slot < 5:
+				node.set("resource_a", Stocks.STOCKS.home[0])
+				node.relocate_field(
+					map.ground_point(plan.points[slot]), map.ground_point(plan.origin)
+				)
+			elif slot == 5:
+				var replacement = raw_scene.instantiate()
+				replacement.resource_a = Stocks.STOCKS.home[0]
+				node.get_parent().add_child(replacement)
+				replacement.relocate_field(
+					map.ground_point(plan.points[slot]), map.ground_point(plan.origin)
+				)
+				node.get_parent().remove_child(node)
+				node.queue_free()
+			else:
+				node.get_parent().remove_child(node)
+				node.queue_free()
+	for extra in resources:
+		if (
+			is_instance_valid(extra)
+			and not extra.is_queued_for_deletion()
+			and extra.is_inside_tree()
+			and "resource_b" in extra
+		):
+			var replacement = raw_scene.instantiate()
+			replacement.resource_a = Stocks.EXPANSION_MATERIALS
+			replacement.position = extra.position
+			replacement.harvest_origin = extra.harvest_origin
+			if extra.has_meta("salvage_cache"):
+				replacement.set_meta("salvage_cache", extra.get_meta("salvage_cache"))
+			var host = extra.get_parent()
+			host.add_child(replacement)
+			host.remove_child(extra)
+			extra.queue_free()
 	map.set_meta("home_field_plans", plans)
 	return true
 

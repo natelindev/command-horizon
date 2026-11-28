@@ -5,5 +5,7 @@
 [resource]
 script = ExtResource("roster")
 faction_id = "bastion"
+excluded_structures = PackedStringArray("PhaseCondenser")
+excluded_units = PackedStringArray("CrackRig")
 scenes = {"AdvancedTank": "res://source/match/units/faction/SiegeColossus.tscn", "CombatRobot": "res://source/match/units/faction/BulwarkWalker.tscn", "AntiAirVehicle": "res://source/match/units/faction/FlakHalftrack.tscn"}
 statistics = {"Worker": {"hp_max": 120}, "AdvancedTank": {"hp_max": 190, "attack_range": 16.0, "sight_range": 18.0, "attack_damage": 36.0, "attack_interval": 3.4, "speed": 1.8}, "CombatRobot": {"hp_max": 130, "speed": 2.6}}

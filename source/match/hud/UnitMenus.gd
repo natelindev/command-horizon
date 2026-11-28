@@ -18,6 +18,7 @@ const UnitCounters = preload("res://source/match/combat/UnitCounters.gd")
 const BUILD_KEYS = {
 	KEY_C: "CommandCenter",
 	KEY_F: "ForwardRefinery",
+	KEY_G: "PhaseCondenser",
 	KEY_B: "Barracks",
 	KEY_V: "VehicleFactory",
 	KEY_A: "AircraftFactory",
@@ -378,6 +379,15 @@ func _reset_menus():
 		and unit.type == "CommandLab"
 		and unit.player.get_meta("skirmish", false)
 	)
+	var refines = (
+		_selection.size() == 1
+		and unit.has_node("Refining")
+		and (not unit is Structure or unit.is_constructed())
+	)
+	if refines:
+		var refining_panel = load("res://source/match/hud/RefiningPanel.gd").new()
+		refining_panel.unit = unit
+		_page("Refining").add_child(refining_panel)
 	if researches:
 		roster_page = _page("Research")
 	if builds and _selection.all(func(member): return member is Structure or member is Worker):
@@ -1014,6 +1024,11 @@ func _refresh_buttons():
 				lines.append("Cargo: %d M / %d E" % [unit.resource_a, unit.resource_b])
 			if unit.action != null and unit.action.has_method("harvest_status"):
 				lines.append(unit.action.harvest_status())
+		if unit.has_node("Refining"):
+			var refining = unit.get_node("Refining")
+			var summary = refining.status_summary()
+			if not summary.is_empty():
+				lines.append(summary)
 	elif _selection.all(func(member): return member is Worker):
 		var gathering = 0
 		var waiting = 0

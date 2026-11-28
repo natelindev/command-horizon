@@ -91,6 +91,15 @@ static func cargo(parent: Node3D, accent: Color, repair := false):
 	_commit(parent, surface, "SupplyMesh")
 
 
+static func refined_core(parent: Node3D):
+	var surface = _surface()
+	_box(surface, Vector3(0, .14, 0), Vector3(.88, .18, .88), DARK)
+	_bevel_box(surface, Vector3(0, .48, 0), Vector3(.72, .56, .72), STEEL)
+	_bevel_box(surface, Vector3(0, .52, 0), Vector3(.48, .44, .48), Color("5ce1ff"))
+	_box(surface, Vector3(0, .82, 0), Vector3(.64, .12, .64), Color("e2b857"))
+	_commit(parent, surface, "RefinedCoreMesh")
+
+
 static func radar(parent: Node3D):
 	var surface = _surface()
 	_bevel_box(surface, Vector3(0, .35, 0), Vector3(1.12, .64, .90), STEEL)

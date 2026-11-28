@@ -7,6 +7,7 @@ static func player_state(player, reference: Callable) -> Dictionary:
 		"logistics": player.logistics,
 		"logistics_left": player.logistics_left,
 		"market_pressure": player.market_pressure,
+		"fence_cooldown_left": player.fence_cooldown_left,
 		"air_contract_left":
 		player.get_node("AirContracts").cooldown_left if player.has_node("AirContracts") else 0.0,
 		"harvesting": _harvesting(player.harvesting_boosts, reference),
@@ -42,6 +43,7 @@ static func restore_player(player, saved: Dictionary, entities: Dictionary):
 	player.logistics = saved.logistics
 	player.logistics_left = saved.logistics_left
 	player.market_pressure = saved.market_pressure
+	player.fence_cooldown_left = saved.fence_cooldown_left
 	if saved.air_contract_left > 0.0:
 		load("res://source/match/economy/FrontierAirContracts.gd").get_for(player).cooldown_left = (
 			saved.air_contract_left
@@ -92,6 +94,7 @@ static func unit_state(unit, reference: Callable) -> Dictionary:
 			if unit.type == "AdvancedTank" and unit.player.faction == "helix"
 			else 0.0
 		),
+		"refining": unit.get_node("Refining").capture_state() if unit.has_node("Refining") else {},
 	}
 
 
@@ -100,7 +103,7 @@ static func valid_player(schema, side) -> bool:
 	if not (schema._shape(
 		state,
 		(
-			"logistics:num logistics_left:num market_pressure:signed "
+			"logistics:num logistics_left:num market_pressure:signed fence_cooldown_left:num "
 			+ "air_contract_left:num harvesting:list production:list"
 		)
 	)):
@@ -109,6 +112,7 @@ static func valid_player(schema, side) -> bool:
 		state.logistics > 100
 		or state.logistics_left > 5
 		or absf(state.market_pressure) > 20
+		or state.fence_cooldown_left > 25.0
 		or state.air_contract_left > 20.0
 	):
 		return schema._fail("Invalid logistics or market reserve.")
@@ -155,16 +159,14 @@ static func valid_links(schema, data) -> bool:
 				return schema._fail("Invalid resonance target.")
 	for unit in data.units:
 		var state = unit.benchmark
-		if not (
-			schema
-			. _shape(
-				state,
-				(
-					"tactics:dict ion_stall_left:num refinery_remainder:num hq_energy:num "
-					+ "shield_withdrawing:bool cloak_left:num mercenary:dict prism_target:text prism_seconds:num"
-				)
+		if not (schema._shape(
+			state,
+			(
+				"tactics:dict ion_stall_left:num refinery_remainder:num hq_energy:num "
+				+ "shield_withdrawing:bool cloak_left:num mercenary:dict prism_target:text "
+				+ "prism_seconds:num refining:dict"
 			)
-		):
+		)):
 			return false
 		if (
 			state.ion_stall_left > 2.5

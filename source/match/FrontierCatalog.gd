@@ -24,6 +24,7 @@ const MODELS = {
 }
 const NAMES = {
 	"Worker": "Scrapper rig",
+	"CrackRig": "Crack-Rig",
 	"Infantry": "Ridge ranger",
 	"AssaultInfantry": "Scrap vanguard",
 	"RocketInfantry": "Tank hunter",
@@ -53,6 +54,7 @@ const COSTS = {
 	"SniperInfantry": [12, 6],
 	"RocketInfantry": [12, 4],
 	"Worker": [6, 0],
+	"CrackRig": [28, 0],
 	"Infantry": [5, 0],
 	"Tank": [20, 4],
 	"RepairRobot": [14, 4],

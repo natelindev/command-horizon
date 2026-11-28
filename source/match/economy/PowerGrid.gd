@@ -34,6 +34,9 @@ static func totals(player) -> Vector2i:
 			and structure.abilities.is_active("power_overdrive")
 		):
 			demand += 3
+		var refining = structure.get_node_or_null("Refining")
+		if refining != null and refining.has_method("extra_power_draw"):
+			demand += refining.extra_power_draw()
 	return Vector2i(supply, demand)
 
 

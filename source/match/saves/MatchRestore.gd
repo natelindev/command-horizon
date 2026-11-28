@@ -201,6 +201,8 @@ func restore(tree, snapshot):
 		game.commander_support.restore_state(_data.commander, entities)
 	if "battlefield_events" in game and game.battlefield_events != null:
 		game.battlefield_events.restore_state(_data.events, entities)
+	if "refining_manager" in game and game.refining_manager != null:
+		game.refining_manager.restore_state(_data.refining, entities)
 	game._visual_serial = _data.visual_serial
 	if not await _synchronize(tree, game):
 		return {
@@ -262,6 +264,8 @@ func restore(tree, snapshot):
 			movement.ion_stall_left = state.ion_stall_left
 		if unit.type == "ForwardRefinery":
 			unit.smelting_remainder = state.refinery_remainder
+		if unit.has_node("Refining") and not state.refining.is_empty():
+			unit.get_node("Refining").restore_state(state.refining)
 		if unit.type == "CommandCenter":
 			unit.energy = state.hq_energy
 		unit.set_meta("shield_withdrawing", state.shield_withdrawing)

@@ -65,8 +65,8 @@ func _run():
 func _mule_and_refinery(worker):
 	_check(worker.hp_max == 120, "Mule Hauler must have 120 hull HP")
 	_check(
-		factions.cost(human, "ForwardRefinery", true) == {"resource_a": 35, "resource_b": 10},
-		"Forward refinery must cost 35 Materials and 10 Electronics"
+		factions.cost(human, "ForwardRefinery", true) == {"resource_a": 35, "resource_b": 0},
+		"Forward refinery must cost 35 Raw and 0 Refined for deadlock-free bootstrapping"
 	)
 	worker.hp = 80.0
 	worker.last_enemy_damage_time = game.simulation_time

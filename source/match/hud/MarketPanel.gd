@@ -21,6 +21,12 @@ func _ready():
 		button.pressed.connect(func(): player.market_exchange(direction))
 		exchanges.add_child(button)
 		_buttons[direction] = button
+	var fence = Choice.new()
+	fence.name = "BlackMarketFence"
+	fence.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	fence.pressed.connect(func(): player.fence_exchange())
+	exchanges.add_child(fence)
+	_buttons["fence"] = fence
 	var aircraft = HBoxContainer.new()
 	aircraft.add_theme_constant_override("separation", 6)
 	add_child(aircraft)
@@ -46,6 +52,31 @@ func _process(delta):
 
 func refresh():
 	for direction in _buttons:
+		if direction == "fence":
+			var f_btn = _buttons["fence"]
+			var profile = load("res://source/match/economy/RefiningProfile.gd")
+			var f_cost = {"resource_a": profile.FRONTIER_FENCE_RAW, "resource_b": 0}
+			var f_icon = load("res://assets/ui/economy/electronics.svg")
+			f_btn.show_role(f_icon, tr("Emergency Fence"), f_cost)
+			f_btn.show_state(
+				(
+					tr("Ready in %d s") % ceili(player.fence_cooldown_left)
+					if player.fence_cooldown_left > 0.0
+					else tr("Receive +%d R") % profile.FRONTIER_FENCE_REFINED
+				)
+			)
+			f_btn.tooltip_text = tr(
+				"Emergency Black Market Fence: 40 Raw -> 10 Refined (25 s cooldown)."
+			)
+			f_btn.accessibility_name = tr("Emergency Fence")
+			f_btn.accessibility_description = f_btn.tooltip_text
+			f_btn.disabled = (
+				get_tree().paused
+				or not player.has_completed_structure("CommandLab")
+				or player.fence_cooldown_left > 0.0
+				or player.resource_a < profile.FRONTIER_FENCE_RAW
+			)
+			continue
 		var quote = player.market_quote(direction)
 		var button = _buttons[direction]
 		var buying = direction == "buy_electronics"

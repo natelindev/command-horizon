@@ -7,6 +7,7 @@ enum BlueprintPositionValidity {
 	NOT_ENOUGH_RESOURCES,
 	OUT_OF_MAP,
 	STRUCTURE_LIMIT,
+	CONDENSER_SPACING,
 }
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
@@ -150,6 +151,16 @@ func _calculate_blueprint_position_validity():
 		return BlueprintPositionValidity.OUT_OF_MAP
 	if not _player_has_enough_resources():
 		return BlueprintPositionValidity.NOT_ENOUGH_RESOURCES
+	if (
+		_pending_structure_prototype != null
+		and _pending_structure_prototype.resource_path.get_file().get_basename() == "PhaseCondenser"
+		and _match != null
+		and _match.refining_manager != null
+		and not _match.refining_manager.condenser_spacing_ok(
+			_player, _active_blueprint_node.global_position
+		)
+	):
+		return BlueprintPositionValidity.CONDENSER_SPACING
 	if not _pending_structure_outline.is_empty():
 		return _footprint_validity()
 	return _radius_validity()
@@ -229,6 +240,8 @@ func _update_feedback_label(blueprint_position_validity):
 			reason = tr("Not enough resources.")
 		BlueprintPositionValidity.OUT_OF_MAP:
 			reason = tr("Outside the battlefield.")
+		BlueprintPositionValidity.CONDENSER_SPACING:
+			reason = tr("Phase Condensers require 8 m spacing.")
 	if reason.is_empty():
 		_feedback.clear()
 	else:

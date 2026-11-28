@@ -20,13 +20,15 @@ func _destroyed(unit):
 	if unit.find_parent("Match") != game:
 		return
 	var amount = Rules.amount(unit.player.faction, unit.type)
-	if amount <= 0:
+	var refined = Rules.refined_amount(unit.player.faction, unit.type)
+	if amount <= 0 and refined <= 0:
 		return
 	pending.append(
 		{
 			"role": unit.type,
 			"faction": unit.player.faction,
 			"amount": amount,
+			"refined": refined,
 			"position":
 			game.map.ground_point(Vector2(unit.global_position.x, unit.global_position.z))
 		}
@@ -51,6 +53,7 @@ func flush():
 		wreck.wreck_faction = entry.faction
 		wreck.salvage_left = LIFETIME
 		wreck.resource_a = entry.amount
+		wreck.refined_b = entry.get("refined", 0)
 		wreck.position = entry.position
 		deposits.add_child(wreck)
 	pending.clear()

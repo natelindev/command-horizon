@@ -25,17 +25,23 @@ const BRANCHES = [
 	"tandem_rockets",
 	"siege_logistics",
 	"bunker_reinforcements",
+	"pressurized_furnaces",
+	"slag_recirculation",
 	"fortress_doctrine",
 	"iron_blitz",
 	"plasma_shields",
 	"beam_amplification",
 	"flux_capacitors",
 	"phase_thrusters",
+	"failsafe_capacitors",
+	"harmonic_lattice",
 	"phase_overload",
 	"continuous_coherence",
 	"scrap_cannibalization",
 	"high_octane",
 	"concealed_claymores",
+	"exhaust_scrubbers",
+	"battlefield_alchemy",
 	"guerrilla_insurgency",
 	"salvage_war_machine",
 ]
@@ -46,6 +52,8 @@ const FACTION_TECHNOLOGIES = {
 		"tandem_rockets",
 		"siege_logistics",
 		"bunker_reinforcements",
+		"pressurized_furnaces",
+		"slag_recirculation",
 		"fortress_doctrine",
 		"iron_blitz"
 	],
@@ -55,6 +63,8 @@ const FACTION_TECHNOLOGIES = {
 		"beam_amplification",
 		"flux_capacitors",
 		"phase_thrusters",
+		"failsafe_capacitors",
+		"harmonic_lattice",
 		"phase_overload",
 		"continuous_coherence"
 	],
@@ -63,6 +73,8 @@ const FACTION_TECHNOLOGIES = {
 		"scrap_cannibalization",
 		"high_octane",
 		"concealed_claymores",
+		"exhaust_scrubbers",
+		"battlefield_alchemy",
 		"guerrilla_insurgency",
 		"salvage_war_machine"
 	],
@@ -89,6 +101,7 @@ const PLASMA_SHIELDS = {
 	"Bomber": 49.5,
 	"AntiAirVehicle": 38.5,
 	"Drone": 13.75,
+	"PhaseCondenser": 80.0,
 }
 const ITEMS = {
 	"plasma_shields":
@@ -265,6 +278,48 @@ const ITEMS = {
 		"seconds": 45.0,
 		"requires": ["coordination"]
 	},
+	"pressurized_furnaces":
+	{
+		"title": "Pressurized Blast Furnaces",
+		"cost": Vector2i(40, 25),
+		"seconds": 35.0,
+		"requires": ["coordination"]
+	},
+	"slag_recirculation":
+	{
+		"title": "Slag Heat Recirculation",
+		"cost": Vector2i(60, 40),
+		"seconds": 45.0,
+		"requires": ["pressurized_furnaces"]
+	},
+	"failsafe_capacitors":
+	{
+		"title": "Fail-Safe Capacitor Buffers",
+		"cost": Vector2i(40, 25),
+		"seconds": 35.0,
+		"requires": ["coordination"]
+	},
+	"harmonic_lattice":
+	{
+		"title": "Harmonic Lattice",
+		"cost": Vector2i(60, 45),
+		"seconds": 45.0,
+		"requires": ["failsafe_capacitors"]
+	},
+	"exhaust_scrubbers":
+	{
+		"title": "Exhaust Scrubbers & Quick-Hitch",
+		"cost": Vector2i(35, 20),
+		"seconds": 30.0,
+		"requires": ["coordination"]
+	},
+	"battlefield_alchemy":
+	{
+		"title": "Total Battlefield Alchemy",
+		"cost": Vector2i(55, 35),
+		"seconds": 40.0,
+		"requires": ["exhaust_scrubbers"]
+	},
 }
 
 
@@ -301,20 +356,49 @@ static func description(id, faction):
 			return "Concrete bunkers gain reinforced firing positions and 50% more durability."
 		"concealed_claymores":
 			return "Hidden proximity mines deal double damage over double the explosion radius."
+		"pressurized_furnaces":
+			return (
+				"Unlocks Super-Heavy Smelter batches (100 M -> 60 R / 42 s). "
+				+ "Aborting recovers 80% Raw and cooking Smelters take 25% less splash damage."
+			)
+		"slag_recirculation":
+			return "Completing any Smelter batch surges adjacent factories (+25% production for 15 s)."
+		"failsafe_capacitors":
+			return (
+				"Phase Condensers gain +60 Plasma Shield capacity and a 6-second brownout grace "
+				+ "buffer before charge bleed-off begins."
+			)
+		"harmonic_lattice":
+			return (
+				"Paired Phase Condensers within 14 m link into a Lattice, unlocking Tier 4 "
+				+ "Over-Resonance (120 M -> 100 R) and a shield aura at Tier 3+."
+			)
+		"exhaust_scrubbers":
+			return (
+				"Crack-Rigs pack up in 0.5 s with a smoke burst and hide their smoke plume "
+				+ "until the final 25% of distillation."
+			)
+		"battlefield_alchemy":
+			return (
+				"Tier-1 wrecks and collapsed ruins yield Refined Cores. Unlocks Crack-Rig "
+				+ "Fuel Injection (+25% speed and fire rate to nearby vehicles for 15 s)."
+			)
 		"fortress_doctrine":
 			return (
-				"Permanent doctrine: structures gain 30% maximum HP, bunkers auto-repair "
-				+ "and sandbag durability doubles. Excludes Iron Blitz."
+				"Permanent doctrine: structures gain 30% maximum HP, bunkers and idle Smelters "
+				+ "auto-repair, and sandbag durability doubles. Excludes Iron Blitz."
 			)
 		"iron_blitz":
 			return (
 				"Permanent doctrine: tanks gain 20% movement speed and stabilized fire on "
-				+ "the move. Excludes Fortress Doctrine."
+				+ "the move; Smelter Overpressure has no cooldown or power penalty. "
+				+ "Excludes Fortress Doctrine."
 			)
 		"phase_overload":
 			return (
-				"Permanent doctrine: shield breaks emit an EMP flash and Phase Shift "
-				+ "cooldown is halved. Excludes Continuous Coherence."
+				"Permanent doctrine: shield breaks emit an EMP flash, Phase Shift cooldown is "
+				+ "halved, and Tier 2+ Condenser discharges recharge nearby shields. "
+				+ "Excludes Continuous Coherence."
 			)
 		"continuous_coherence":
 			return (
@@ -323,13 +407,15 @@ static func description(id, faction):
 			)
 		"guerrilla_insurgency":
 			return (
-				"Permanent doctrine: destroyed structures release militia and the mine "
-				+ "limit doubles. Excludes Salvage War Machine."
+				"Permanent doctrine: destroyed structures release militia, mine limit doubles, "
+				+ "and destroyed distilling Crack-Rigs trigger double fuel-air blasts + militia. "
+				+ "Excludes Salvage War Machine."
 			)
 		"salvage_war_machine":
 			return (
-				"Permanent doctrine: destroyed enemy tanks can be salvaged directly into "
-				+ "Outrider buggies. Excludes Guerrilla Insurgency."
+				"Permanent doctrine: destroyed enemy tanks salvage into Outrider buggies with "
+				+ "+50% bonus Refined Cores; Crack-Rigs can field-assemble Outriders. "
+				+ "Excludes Guerrilla Insurgency."
 			)
 		"plasma_shields":
 			return (
@@ -459,7 +545,10 @@ static func exclusion(id: String, planned: Array) -> String:
 static func shield_capacity(role, faction, completed) -> float:
 	if faction != "helix":
 		return 0.0
-	return PLASMA_SHIELDS.get(role, 0.0) * (1.3 if "plasma_shields" in completed else 1.0)
+	var base = PLASMA_SHIELDS.get(role, 0.0)
+	if role == "PhaseCondenser" and "failsafe_capacitors" in completed:
+		base += 60.0
+	return base * (1.3 if "plasma_shields" in completed else 1.0)
 
 
 static func empty_state():

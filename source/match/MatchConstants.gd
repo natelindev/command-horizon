@@ -183,6 +183,8 @@ class Units:
 	const STRUCTURE_BLUEPRINTS = {
 		"res://source/match/units/ForwardRefinery.tscn":
 		"res://source/match/units/structure-geometries/ForwardRefinery.tscn",
+		"res://source/match/units/PhaseCondenser.tscn":
+		"res://source/match/units/structure-geometries/PhaseCondenser.tscn",
 		"res://source/match/units/Barracks.tscn":
 		"res://source/match/units/structure-geometries/Barracks.tscn",
 		"res://source/match/units/PowerPlant.tscn":
@@ -203,7 +205,8 @@ class Units:
 		"res://source/match/units/structure-geometries/AntiAirTurret.tscn",
 	}
 	const CONSTRUCTION_COSTS = {
-		"res://source/match/units/ForwardRefinery.tscn": {"resource_a": 35, "resource_b": 10},
+		"res://source/match/units/ForwardRefinery.tscn": {"resource_a": 35, "resource_b": 0},
+		"res://source/match/units/PhaseCondenser.tscn": {"resource_a": 35, "resource_b": 0},
 		"res://source/match/units/Barracks.tscn": {"resource_a": 14, "resource_b": 0},
 		"res://source/match/units/PowerPlant.tscn": {"resource_a": 10, "resource_b": 0},
 		"res://source/match/units/CommandLab.tscn": {"resource_a": 18, "resource_b": 12},
@@ -237,6 +240,9 @@ class Units:
 	const DEFAULT_PROPERTIES = {
 		"res://source/match/units/ForwardRefinery.tscn":
 		{"hp": 320, "hp_max": 320, "sight_range": 8.0},
+		"res://source/match/units/PhaseCondenser.tscn":
+		{"hp": 160, "hp_max": 160, "sight_range": 9.0},
+		"res://source/match/units/CrackRig.tscn": {"hp": 95, "hp_max": 95, "sight_range": 8.0},
 		"res://source/match/units/MercenaryLancer.tscn":
 		{
 			"hp": 50,

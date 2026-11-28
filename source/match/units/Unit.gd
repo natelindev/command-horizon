@@ -122,6 +122,11 @@ var attack_interval = null:
 				attack_interval
 				* veterancy_reload_factor
 				* (suppression.reload_factor() if suppression != null else 1.0)
+				* (
+					_match.refining_manager.unit_reload_factor(self)
+					if _match != null and _match.refining_manager != null
+					else 1.0
+				)
 			)
 			if attack_interval != null
 			else null
@@ -324,6 +329,10 @@ func _physics_process(delta):
 		else 1.0
 	)
 	shield_component.tick(delta, _match.simulation_time, factor)
+	if "refining_manager" in _match and _match.refining_manager != null:
+		var bonus = _match.refining_manager.shield_aura_bonus(self)
+		if bonus > 0.0:
+			shield_component.charge = minf(shields_max, shield_component.charge + bonus * delta)
 
 
 func receive_weapon_hit(source):
@@ -341,8 +350,13 @@ func receive_weapon_hit(source):
 # A projectile arrival. Damage uses the round's frozen weapon facts; splash
 # passes the share of full damage that reached this body.
 func receive_shot(shot, point = null, share = 1.0, presentation_weapon = {}):
+	var refining = get_node_or_null("Refining")
+	var splash_scale = refining.splash_damage_factor() if share < 1.0 and refining != null else 1.0
 	receive_damage(
-		shot.feedback_source(), _rules().damage_from(shot, self) * share, point, presentation_weapon
+		shot.feedback_source(),
+		_rules().damage_from(shot, self) * share * splash_scale,
+		point,
+		presentation_weapon
 	)
 
 
@@ -511,19 +525,28 @@ func _get_movement_speed() -> float:
 
 
 func movement_technology_factor() -> float:
+	var refining = get_node_or_null("Refining")
+	if refining != null and refining.is_immobilized():
+		return 0.0
+	var fuel = (
+		_match.refining_manager.unit_speed_factor(self)
+		if _match != null and _match.refining_manager != null
+		else 1.0
+	)
 	var owner_player = player
 	if owner_player == null or owner_player.technology == null:
-		return 1.0
+		return fuel
 	var completed = owner_player.technology.completed
 	if completed.is_empty() or Bastion.is_infantry(type) or Bastion.is_aircraft(type):
-		return 1.0
+		return fuel
+	var tech = 1.0
 	if owner_player.faction == "frontier" and "high_octane" in completed:
-		return 1.18
-	if owner_player.faction == "helix" and "phase_thrusters" in completed:
-		return 1.15
-	if owner_player.faction == "bastion" and type == "Tank" and "iron_blitz" in completed:
-		return 1.2
-	return 1.0
+		tech = 1.18
+	elif owner_player.faction == "helix" and "phase_thrusters" in completed:
+		tech = 1.15
+	elif owner_player.faction == "bastion" and type == "Tank" and "iron_blitz" in completed:
+		tech = 1.2
+	return tech * fuel
 
 
 func _is_movable():
@@ -613,6 +636,9 @@ func _safety_checks():
 func _handle_unit_death():
 	if is_queued_for_deletion():
 		return
+	var refining = get_node_or_null("Refining")
+	if refining != null and refining.has_method("on_owner_destroyed"):
+		refining.on_owner_destroyed()
 	MatchSignals.unit_destroying.emit(self)
 	if _match != null and _match.combat_effects != null:
 		_match.combat_effects.destruction(self)

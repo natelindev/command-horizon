@@ -78,25 +78,28 @@ func dismantle(wreck) -> bool:
 	):
 		return false
 	var amount = wreck.resource_a
+	var refined = wreck.refined_b if "refined_b" in wreck else 0
 	var center = wreck.global_position
 	# Debiting first makes worker/vehicle races atomic even within one frame.
 	if not wreck.consume_by(_unit):
 		return false
-	if (
-		_unit.player.technology != null
-		and "scrap_cannibalization" in _unit.player.technology.completed
-	):
+	var completed = _unit.player.technology.completed if _unit.player.technology != null else []
+	if "scrap_cannibalization" in completed:
 		amount = floori(amount * CANNIBALIZATION_YIELD)
 		_repair_nearby_vehicles(center, CANNIBALIZATION_REPAIR)
 	else:
 		_repair_nearby_vehicles(center, FIELD_REPAIR)
-	if (
-		_unit.player.technology != null
-		and "salvage_war_machine" in _unit.player.technology.completed
-	):
+	if "battlefield_alchemy" in completed and refined == 0:
+		refined = 4
+	if "salvage_war_machine" in completed:
+		if refined > 0:
+			refined = ceili(refined * 1.5)
 		_assemble_buggy(center)
 	_unit.player.resource_a += amount
 	MatchSignals.resources_mined.emit(_unit, "materials", amount)
+	if refined > 0:
+		_unit.player.resource_b += refined
+		MatchSignals.resources_mined.emit(_unit, "electronics", refined)
 	return true
 
 

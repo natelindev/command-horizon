@@ -4,7 +4,7 @@ extends RefCounted
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 # Saves from any other version are rejected; there is no migration.
-const VERSION = 22
+const VERSION = 23
 const Benchmark = preload("res://source/match/saves/BenchmarkState.gd")
 const ACTION_FIELDS = {
 	"EngineeringAction":
@@ -190,6 +190,12 @@ func capture(game, at_fixed_boundary = false):
 			if "battlefield_events" in game and game.battlefield_events != null
 			else {}
 		),
+		"refining":
+		(
+			game.refining_manager.capture_state(_reference)
+			if "refining_manager" in game and game.refining_manager != null
+			else {}
+		),
 	}
 	if not obstacles.is_empty():
 		result.obstacles = []
@@ -228,7 +234,9 @@ func capture(game, at_fixed_boundary = false):
 				deposit.harvest_origin if deposit.harvest_origin.is_finite() else null,
 				"wreck":
 				(
-					_properties(deposit, ["wreck_role", "wreck_faction", "salvage_left"])
+					_properties(
+						deposit, ["wreck_role", "wreck_faction", "salvage_left", "refined_b"]
+					)
 					if deposit.is_in_group("salvage_wrecks")
 					else {}
 				)

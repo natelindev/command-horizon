@@ -30,7 +30,9 @@ const NAMES = {
 	"Fighter": "Interceptor jet",
 	"Bomber": "Heavy bomber",
 	"AntiAirVehicle": "Flak Halftrack",
-	"ForwardRefinery": "Forward refinery",
+	"CrackRig": "Crack-Rig",
+	"ForwardRefinery": "Industrial Smelter",
+	"PhaseCondenser": "Phase Condenser",
 	"CommandCenter": "Headquarters",
 	"Barracks": "Barracks",
 	"VehicleFactory": "Vehicle factory",
@@ -111,7 +113,20 @@ const DESCRIPTIONS = {
 		+ "cooldown in the field. Vulnerable to rocket infantry and anti-air."
 	),
 	"ForwardRefinery":
-	"Forward materials drop-off. Build near ore to shorten Mule Hauler delivery routes.",
+	(
+		"Industrial Smelter & drop-off. Smelts Raw batches into Refined Cores "
+		+ "(+20% faster when Field-Fed by haulers). Uses 3 power."
+	),
+	"PhaseCondenser":
+	(
+		"Harmonic Phase Condenser. Siphons Raw into escalating T1-T3/T4 Refined yields "
+		+ "while Power Grid stays healthy. Minimum 8 m spacing. Uses 4 power."
+	),
+	"CrackRig":
+	(
+		"Mobile Frontier distiller truck. Deploy anywhere to refine Raw into Refined Cores "
+		+ "(+40% faster near wrecks, Raw fields, or Catalysts)."
+	),
 	"CommandCenter": "Produces Mule Haulers. Receives harvested resources. Supplies 8 power.",
 	"Barracks":
 	(
@@ -145,6 +160,7 @@ const PRODUCES = {
 }
 const STRUCTURES = [
 	"ForwardRefinery",
+	"PhaseCondenser",
 	"CommandCenter",
 	"Barracks",
 	"VehicleFactory",
@@ -164,6 +180,8 @@ const REQUIRES = {
 }
 const POWER_SUPPLY = {"CommandCenter": 8, "PowerPlant": 12}
 const POWER_USAGE = {
+	"ForwardRefinery": 3,
+	"PhaseCondenser": 4,
 	"Barracks": 3,
 	"VehicleFactory": 6,
 	"AircraftFactory": 8,

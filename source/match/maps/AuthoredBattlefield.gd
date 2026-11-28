@@ -267,11 +267,14 @@ func _fields() -> Array:
 
 
 func _place_fields():
+	var game = find_parent("Match")
+	var raw_only = game == null or (game.settings.skirmish and game.settings.mission_id.is_empty())
 	for field in _fields():
 		var stocks = field_stocks()[field.kind]
 		var points = field_points(field.site, field.centre)
-		for index in points.size():
-			var electronics = index >= MATERIAL_PILES
+		var count = 6 if raw_only else points.size()
+		for index in count:
+			var electronics = not raw_only and index >= MATERIAL_PILES
 			var deposit = (RESOURCE_B if electronics else RESOURCE_A).instantiate()
 			deposit.set(
 				"resource_b" if electronics else "resource_a", stocks[1 if electronics else 0]

@@ -1,0 +1,57 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://source/match/units/CrackRig.gd" id="unit"]
+[ext_resource type="Script" path="res://source/match/units/traits/UnitVisuals.gd" id="visuals"]
+[ext_resource type="PackedScene" path="res://source/match/units/structure-geometries/CrackRig.tscn" id="model"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Highlight.tscn" id="Highlight"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Selection.tscn" id="Selection"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/HealthBar.tscn" id="HealthBar"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Targetability.tscn" id="Targetability"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Movement.tscn" id="Movement"]
+
+[sub_resource type="CylinderShape3D" id="collision"]
+radius = 0.78
+height = 1.15
+
+[node name="CrackRig" type="Area3D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("unit")
+
+[node name="Geometry" parent="." instance=ExtResource("model")]
+
+[node name="ProjectileOrigin" type="Marker3D" parent="."]
+position = Vector3(0, 0.75, -0.75)
+
+[node name="BastionVisuals" type="Node" parent="."]
+script = ExtResource("visuals")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.58, 0)
+shape = SubResource("collision")
+
+[node name="Highlight" parent="." instance=ExtResource("Highlight")]
+radius = 0.78
+position = Vector3(0, 0.04, 0)
+
+[node name="Selection" parent="." instance=ExtResource("Selection")]
+radius = 0.78
+position = Vector3(0, 0.04, 0)
+
+[node name="Targetability" parent="." instance=ExtResource("Targetability")]
+radius = 0.78
+position = Vector3(0, 0.04, 0)
+
+[node name="Movement" parent="." instance=ExtResource("Movement")]
+radius = 0.78
+neighbor_distance = 8.0
+max_neighbors = 24
+path_desired_distance = 0.25
+target_desired_distance = 0.25
+path_height_offset = 0.6
+speed = 3.6
+domain = 1
+
+[node name="HealthBar" parent="." instance=ExtResource("HealthBar")]
+position = Vector3(0, 1.45, 0)
+size = Vector2(92, 8)

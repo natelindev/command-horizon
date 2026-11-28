@@ -38,6 +38,7 @@ var logistics_left: float = 5.0
 var harvesting_boosts: Array = []
 var production_boosts: Array = []
 var market_pressure: float = 0.0
+var fence_cooldown_left: float = 0.0
 
 var indexed_rosters: bool = (
 	load("res://source/match/rendering/NativePosePacker.gd")
@@ -256,6 +257,8 @@ func production_factor(facility = null):
 		var game = find_parent("Match")
 		if game != null and game.helix_support != null:
 			factor *= game.helix_support.production_factor(facility)
+		if game != null and game.refining_manager != null:
+			factor *= game.refining_manager.production_factor(facility)
 		for boost in production_boosts:
 			if boost.target.get_ref() == facility and boost.left > 0.0:
 				factor *= 1.5
@@ -330,6 +333,21 @@ func market_exchange(direction: String) -> bool:
 	return true
 
 
+func fence_exchange() -> bool:
+	if faction != "frontier" or not has_completed_structure("CommandLab"):
+		return false
+	if get_tree().paused or fence_cooldown_left > 0.0:
+		return false
+	var profile = load("res://source/match/economy/RefiningProfile.gd")
+	if resource_a < profile.FRONTIER_FENCE_RAW:
+		return false
+	resource_a -= profile.FRONTIER_FENCE_RAW
+	resource_b += profile.FRONTIER_FENCE_REFINED
+	fence_cooldown_left = profile.FRONTIER_FENCE_COOLDOWN
+	emit_changed()
+	return true
+
+
 func population(include_queued = false):
 	var count = 0
 	for child in get_children():
@@ -397,6 +415,7 @@ func _physics_process(delta):
 
 func _advance_economy(delta):
 	market_pressure = move_toward(market_pressure, 0.0, delta / 60.0)
+	fence_cooldown_left = maxf(0.0, fence_cooldown_left - delta)
 	var state = power_state()
 	if state != _last_grid_state:
 		var game = find_parent("Match")

@@ -5,6 +5,7 @@ const Catalog = preload("res://source/match/BastionCatalog.gd")
 var wreck_role = "Tank"
 var wreck_faction = "bastion"
 var salvage_left = 180.0
+var refined_b: int = 0
 var player = null
 var _elapsed = 0.0
 @onready var game = find_parent("Match")

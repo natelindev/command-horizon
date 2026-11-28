@@ -11,7 +11,12 @@ static func profile(base: Dictionary) -> Dictionary:
 	result.task_groups += 1
 	result.extra_factories = maxi(1, result.extra_factories)
 	result.research = [
-		"high_octane", "scrap_cannibalization", "guerrilla_insurgency", "concealed_claymores"
+		"exhaust_scrubbers",
+		"high_octane",
+		"scrap_cannibalization",
+		"battlefield_alchemy",
+		"guerrilla_insurgency",
+		"concealed_claymores"
 	]
 	return result
 

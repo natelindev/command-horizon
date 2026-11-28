@@ -19,6 +19,7 @@ var simulation_time = 0.0
 var battlefield = null
 var repair_service = null
 var wreck_salvage = null
+var refining_manager = null
 var combat_effects = null
 var battlefield_wear = null
 var base_area_lighting = null
@@ -116,6 +117,9 @@ func _ready():
 	add_child(projectile_system)
 	wreck_salvage = load("res://source/match/economy/WreckSalvage.gd").new()
 	add_child(wreck_salvage)
+	refining_manager = load("res://source/match/economy/RefiningManager.gd").new()
+	refining_manager.name = "RefiningManager"
+	add_child(refining_manager)
 	repair_service = load("res://source/match/combat/RepairService.gd").new()
 	add_child(repair_service)
 	MatchSignals.setup_and_spawn_unit.connect(_setup_and_spawn_unit)

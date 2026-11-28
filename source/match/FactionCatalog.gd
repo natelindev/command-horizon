@@ -174,7 +174,8 @@ const HELIX_DESCRIPTIONS = {
 const UNIT_COSTS = Rules.UNIT_COSTS
 const HELIX_COSTS = Rules.HELIX_COSTS
 const BUILD_COSTS = {
-	"ForwardRefinery": [35, 10],
+	"ForwardRefinery": [35, 0],
+	"PhaseCondenser": [35, 0],
 	"CommandCenter": [80, 20],
 	"Barracks": [20, 0],
 	"VehicleFactory": [45, 12],
@@ -189,6 +190,7 @@ const BUILD_COSTS = {
 # the extra commitment for heavy units, heroes and additional technology.
 const BUILD_TIMES = {
 	"ForwardRefinery": 18.0,
+	"PhaseCondenser": 18.0,
 	"CommandCenter": 35.0,
 	"Barracks": 14.0,
 	"VehicleFactory": 24.0,
@@ -211,6 +213,7 @@ const FRONTIER_BUILD_COSTS = {
 }
 const UNIT_TIMES = {
 	"Hero": 30.0,
+	"CrackRig": 12.0,
 	"AssaultInfantry": 8.0,
 	"SniperInfantry": 11.0,
 	"RocketInfantry": 10.0,
@@ -258,6 +261,7 @@ const TECH_SUMMARY = {
 }
 const BUILD_REQUIRES = {
 	"ForwardRefinery": "",
+	"PhaseCondenser": "",
 	"VehicleFactory": "Barracks",
 	"AircraftFactory": "VehicleFactory",
 	"CommandLab": "VehicleFactory",
@@ -339,12 +343,14 @@ static func icon(faction, role):
 	if role in Bastion.INFANTRY_ROLES:
 		return "res://assets/ui/infantry/%s/%s.png" % [faction, role]
 	if faction == "frontier":
+		if role == "CrackRig":
+			return "res://assets/ui/frontier/ScrapperRig.png"
 		return "res://assets/ui/frontier/%s.png" % Frontier.MODELS[role]
-	return (
-		"res://assets/ui/helix/%s.png" % HELIX_MODELS[role]
-		if faction == "helix"
-		else Bastion.icon_path(role)
-	)
+	if faction == "helix":
+		if role == "PhaseCondenser":
+			return "res://assets/ui/helix/FluxGenerator.png"
+		return "res://assets/ui/helix/%s.png" % HELIX_MODELS[role]
+	return Bastion.icon_path(role)
 
 
 static func selection_portrait(faction, role) -> Texture2D:
@@ -378,6 +384,7 @@ static func portrait(faction, role) -> Texture2D:
 	var paths = [Bastion.icon_path(role)]
 	if (
 		role in Bastion.INFANTRY_ROLES
+		or role in ["PhaseCondenser", "CrackRig"]
 		or (faction == "frontier" and Frontier.MODELS.has(role))
 		or (faction == "helix" and HELIX_MODELS.has(role))
 	):
@@ -537,6 +544,10 @@ static func available(player, role, building = false, ignore_job = null):
 	if not roster(player.faction).allows(role, building):
 		return false
 	if role == "ForwardRefinery" and player.faction != "bastion":
+		return false
+	if role == "PhaseCondenser" and player.faction != "helix":
+		return false
+	if role == "CrackRig" and player.faction != "frontier":
 		return false
 	if role == "Hero" and hero_reserved(player, ignore_job):
 		return false

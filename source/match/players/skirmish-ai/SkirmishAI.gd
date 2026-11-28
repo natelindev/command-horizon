@@ -71,6 +71,7 @@ func _process(delta):
 	_build(units, desired)
 	units = _units()
 	_harvest(units)
+	_manage_refining(units)
 	_research(units, desired)
 	_train(units, desired)
 	Sites.recruit(_match, self, _units(), desired)
@@ -137,7 +138,16 @@ func _next_building(units):
 		return "PowerPlant"
 	for role in ["Barracks", "VehicleFactory"]:
 		if _of_type(units, role).is_empty():
+			if role == "VehicleFactory":
+				if faction == "bastion" and _of_type(units, "ForwardRefinery").is_empty():
+					return _power_ready_building(units, "ForwardRefinery")
+				if faction == "helix" and _of_type(units, "PhaseCondenser").is_empty():
+					return _power_ready_building(units, "PhaseCondenser")
 			return _power_ready_building(units, role)
+	if faction == "bastion" and _of_type(units, "ForwardRefinery").size() < 2 and resource_b < 24:
+		return _power_ready_building(units, "ForwardRefinery")
+	if faction == "helix" and _of_type(units, "PhaseCondenser").size() < 2 and resource_b < 28:
+		return _power_ready_building(units, "PhaseCondenser")
 	if _of_type(units, "AntiAirTurret").is_empty() and Composition.observed(_match, self).air > 0:
 		return _power_ready_building(units, "AntiAirTurret")
 	if faction == "bastion":
@@ -270,7 +280,7 @@ func _build(units, desired):
 	elif desired in ["CommandCenter", "ForwardRefinery"] and _expansion_site != null:
 		site.origin = _expansion_position(_expansion_site, building.radius, navmap)
 	else:
-		site.origin = _find_site(origin, building.radius, navmap)
+		site.origin = _find_site(origin, building.radius, navmap, desired)
 	var position_to_build = site.origin
 	if not position_to_build.is_finite():
 		building.free()
@@ -309,7 +319,7 @@ func _expansion_position(site, radius, navmap):
 	return Vector3.INF
 
 
-func _find_site(origin, radius, navmap):
+func _find_site(origin, radius, navmap, desired = ""):
 	var obstacles = (
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
 	)
@@ -326,6 +336,12 @@ func _find_site(origin, radius, navmap):
 				continue
 			if not _leaves_base_access(point, radius, obstacles):
 				continue
+			if (
+				desired == "PhaseCondenser"
+				and _match.refining_manager != null
+				and not _match.refining_manager.condenser_spacing_ok(self, point)
+			):
+				continue
 			if _match.map.is_elevated():
 				point = _match.map.ground_point(Vector2(point.x, point.z))
 			var validity = Utils.Match.Unit.Placement.validate_agent_placement_position(
@@ -334,6 +350,77 @@ func _find_site(origin, radius, navmap):
 			if validity == Utils.Match.Unit.Placement.VALID:
 				return point
 	return Vector3.INF
+
+
+func _manage_refining(units: Array):
+	var observed = Economy.contacts(_match, self)
+	if faction == "bastion":
+		for smelter in _of_type(units, "ForwardRefinery"):
+			var refining = smelter.get_node_or_null("Refining")
+			if refining == null or not smelter.is_constructed():
+				continue
+			if refining.active and smelter.hp < smelter.hp_max * 0.3:
+				refining.abort_batch()
+				continue
+			var desired_tier = "standard"
+			if (
+				technology != null
+				and "pressurized_furnaces" in technology.completed
+				and resource_a >= 140
+			):
+				desired_tier = "super_heavy"
+			elif resource_a >= 90:
+				desired_tier = "heavy"
+			if refining.batch_tier != desired_tier:
+				refining.set_batch_tier(desired_tier)
+			var power = power_totals()
+			var can_surge = (
+				power.x >= power.y + 4
+				or (technology != null and "iron_blitz" in technology.completed)
+			)
+			if can_surge and not refining.overpressure_enabled and refining.active:
+				refining.toggle_overpressure()
+	elif faction == "helix":
+		for condenser in _of_type(units, "PhaseCondenser"):
+			var refining = condenser.get_node_or_null("Refining")
+			if refining == null or not condenser.is_constructed():
+				continue
+			if (
+				(is_brownout() or condenser.hp < condenser.hp_max * 0.35)
+				and refining.charge_seconds > 0.0
+			):
+				refining.discharge_now()
+				continue
+			var desired_t = 4 if refining.helix_max_tier() >= 4 else (3 if resource_a >= 120 else 2)
+			if refining.target_tier != desired_t:
+				refining.set_target_tier(desired_t)
+	elif faction == "frontier":
+		var rigs = _of_type(units, "CrackRig")
+		var hqs = _of_type(units, "CommandCenter").filter(func(cc): return cc.is_constructed())
+		if rigs.size() < 2 and resource_a >= 40 and not hqs.is_empty():
+			var queue = hqs[0].get_node_or_null("ProductionQueue")
+			if queue != null and queue._queue.size() < 2:
+				queue.produce(load(Factions.scene_path("frontier", "CrackRig")))
+		for rig in rigs:
+			var refining = rig.get_node_or_null("Refining")
+			if refining == null:
+				continue
+			var threatened = observed.any(
+				func(enemy):
+					return (
+						enemy.attack_range != null
+						and (
+							enemy.global_position_yless.distance_to(rig.global_position_yless)
+							< 10.0
+						)
+					)
+			)
+			if threatened and refining.deploy_state == "deployed":
+				refining.pack_up()
+			elif not threatened and refining.deploy_state == "mobile":
+				refining.deploy()
+		if resource_b < 8 and resource_a >= 80 and has_completed_structure("CommandLab"):
+			fence_exchange()
 
 
 # Long structures (the runway airfield) try several headings at each candidate.

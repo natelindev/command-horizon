@@ -140,12 +140,27 @@ func collect(unit, elapsed: float) -> bool:
 	):
 		return false
 	var amount = _salvage_amount(unit.player) if unit.type == "Worker" else 0
+	var refined = _salvage_refined(unit.player) if unit.type == "Worker" else 0
 	materials = 0
 	if amount > 0:
 		unit.player.add_resources({"resource_a": amount})
 		MatchSignals.resources_mined.emit(unit, "materials", amount)
+	if refined > 0:
+		unit.player.add_resources({"resource_b": refined})
+		MatchSignals.resources_mined.emit(unit, "electronics", refined)
 	breach()
 	return true
+
+
+func _salvage_refined(player) -> int:
+	if (
+		player != null
+		and player.faction == "frontier"
+		and player.technology != null
+		and "battlefield_alchemy" in player.technology.completed
+	):
+		return maxi(6, mini(8, floori(materials * 0.5)))
+	return 0
 
 
 func _salvage_amount(player) -> int:

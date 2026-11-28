@@ -24,6 +24,7 @@ var jobs = []
 var stock_a = 600
 var stock_b = 300
 var income_left = INCOME_INTERVAL
+var canister_left = 60.0
 var machinery = null
 var radar_left = 0.0
 var radar_points = []
@@ -375,18 +376,22 @@ func income_interval() -> float:
 
 
 func income_payment():
-	return {"refinery": Vector2i(3, 1), "data_relay": Vector2i(0, 2)}.get(kind, Vector2i.ZERO)
+	return {"refinery": Vector2i(2, 1), "data_relay": Vector2i(0, 0)}.get(kind, Vector2i.ZERO)
 
 
 func income_status():
+	if kind == "data_relay":
+		if not operational():
+			return tr("Relay paused")
+		return tr("Core drop in %ds · Radar sweep") % ceili(canister_left)
 	var payment = income_payment()
 	if payment == Vector2i.ZERO:
 		return tr("Depleted")
 	if not operational():
 		return tr("Income paused")
 	return (
-		tr("+%d M / +%d E every %d s · next in %ds")
-		% [payment.x, payment.y, int(income_interval()), ceili(income_left)]
+		tr("+%d M / +%d R every %d s · Catalyst +20%%")
+		% [payment.x, payment.y, int(income_interval())]
 	)
 
 
@@ -463,8 +468,20 @@ func _physics_process(delta):
 			if kind == "data_relay":
 				_radar_sweep()
 			_payout_flash = 1.0
-			MatchSignals.resources_mined.emit(self, "materials", payment.x)
-			MatchSignals.resources_mined.emit(self, "electronics", payment.y)
+			if payment.x > 0:
+				MatchSignals.resources_mined.emit(self, "materials", payment.x)
+			if payment.y > 0:
+				MatchSignals.resources_mined.emit(self, "electronics", payment.y)
+		if kind == "data_relay":
+			canister_left = maxf(0.0, canister_left - delta)
+			if canister_left <= 0.000001:
+				var profile = load("res://source/match/economy/RefiningProfile.gd")
+				canister_left = profile.RELAY_CANISTER_INTERVAL
+				if _match != null and _match.refining_manager != null:
+					var drop = global_position + Vector3(0.0, 0.0, radius + 1.5)
+					_match.refining_manager.spawn_canisters(
+						drop, profile.RELAY_CANISTER_REFINED, captured_by, false
+					)
 		_update_presentation()
 	elif kind == "mercenary" and not jobs.is_empty():
 		jobs[0].left = maxf(0, jobs[0].left - delta)
@@ -534,7 +551,8 @@ func _ownership_changed(side):
 	radar_points.clear()
 	_payout_flash = 1.0 if side != null else 0.0
 	if side != null and kind == "refinery":
-		side.add_resources({"resource_a": 50, "resource_b": 25})
+		side.add_resources({"resource_a": 25, "resource_b": 15})
+	canister_left = 60.0
 	while not jobs.is_empty():
 		if is_instance_valid(_payer):
 			_payer.add_resources(jobs[0].paid_cost)
@@ -585,6 +603,7 @@ func capture_state(reference):
 		"progress": progress,
 		"contested": contested,
 		"income_left": income_left,
+		"canister_left": canister_left,
 		"stock_a": stock_a,
 		"stock_b": stock_b,
 		"radar_left": radar_left,
@@ -600,6 +619,7 @@ func restore_state(saved, entities):
 	progress = saved.progress
 	contested = saved.contested
 	income_left = saved.income_left
+	canister_left = float(saved.get("canister_left", 60.0))
 	stock_a = saved.stock_a
 	stock_b = saved.stock_b
 	radar_left = saved.radar_left
